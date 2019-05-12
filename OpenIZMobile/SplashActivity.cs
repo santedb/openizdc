@@ -53,7 +53,13 @@ using Android.Content.PM;
 
 namespace OpenIZMobile
 {
-    [Activity(Label = "@string/app_name", Theme = "@style/OpenIZ.Splash", MainLauncher = true, Icon = "@mipmap/icon", NoHistory = true, ConfigurationChanges = Android.Content.PM.ConfigChanges.Orientation | Android.Content.PM.ConfigChanges.ScreenSize)]
+    [Activity(Label = "@string/app_name", 
+        Theme = "@style/OpenIZ.Splash", 
+        MainLauncher = true, 
+        Icon = "@mipmap/icon", 
+        NoHistory = true, 
+        ConfigurationChanges = Android.Content.PM.ConfigChanges.Orientation | Android.Content.PM.ConfigChanges.ScreenSize,
+        ScreenOrientation = ScreenOrientation.Locked)]
     public class SplashActivity : OpenIZApplicationActivity
     {
 

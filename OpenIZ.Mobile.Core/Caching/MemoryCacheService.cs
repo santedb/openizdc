@@ -126,9 +126,9 @@ namespace OpenIZ.Mobile.Core.Caching
                         ApplicationContext.Current.GetService<IDataPersistenceService<Place>>().Get(Guid.Parse(i));
 
                      // Seed cache
-                     this.m_tracer.TraceInfo("Loading materials dictionary...");
-					 ApplicationContext.Current.GetService<IDataPersistenceService<Material>>().Query(q => q.StatusConceptKey == StatusKeys.Active);
-					 ApplicationContext.Current.GetService<IDataPersistenceService<ManufacturedMaterial>>().Query(q => q.StatusConceptKey == StatusKeys.Active);
+      //               this.m_tracer.TraceInfo("Loading materials dictionary...");
+					 //ApplicationContext.Current.GetService<IDataPersistenceService<Material>>().Query(q => q.StatusConceptKey == StatusKeys.Active);
+					 //ApplicationContext.Current.GetService<IDataPersistenceService<ManufacturedMaterial>>().Query(q => q.StatusConceptKey == StatusKeys.Active);
 
 					 // handles when a item is being mapped
 					 if (this.m_mappingHandler == null)

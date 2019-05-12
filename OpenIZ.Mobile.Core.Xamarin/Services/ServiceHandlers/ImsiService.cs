@@ -131,6 +131,36 @@ namespace OpenIZ.Mobile.Core.Xamarin.Services.ServiceHandlers
         }
 
         /// <summary>
+        /// Gets the entity relationship
+        /// </summary>
+        [RestOperation(Method = "GET", UriPath = "/EntityRelationship", FaultProvider = nameof(ImsiFault))]
+        [Demand(PolicyIdentifiers.ReadClinicalData)]
+        [return: RestMessage(RestMessageFormat.SimpleJson)]
+        public IdentifiedData GetEntityRelationship()
+        {
+            var erRepositoryService = ApplicationContext.Current.GetService<IRepositoryService<EntityRelationship>>();
+
+            var search = NameValueCollection.ParseQueryString(MiniImsServer.CurrentContext.Request.Url.Query);
+
+            if (search.ContainsKey("_id"))
+            {
+                // Force load from DB
+                var keyid = Guid.Parse(search["_id"].FirstOrDefault());
+                return erRepositoryService.Get(keyid);
+            }
+            else
+            {
+                var qry = QueryExpressionParser.BuildLinqExpression<EntityRelationship>(search);
+
+                var results = erRepositoryService.Find(qry);
+                return new Bundle()
+                {
+                    Item = results.OfType<IdentifiedData>().ToList(),
+                    TotalResults = results.Count()
+                };
+            }
+        }
+        /// <summary>
         /// Deletes the act
         /// </summary>
         [RestOperation(Method = "DELETE", UriPath = "/EntityRelationship", FaultProvider = nameof(ImsiFault))]

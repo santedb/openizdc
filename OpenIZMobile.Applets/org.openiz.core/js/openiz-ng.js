@@ -460,7 +460,9 @@ angular.module('openiz', [])
                                 else if (defaultValue) {
                                     $(element).val(defaultValue);
                                 }
-                                $(element).trigger('change');
+
+                                angular.element($(element)).triggerHandler('change');
+                                //$(element).trigger('change');
 
                             }
                         });
