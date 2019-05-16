@@ -457,6 +457,9 @@ angular.module('openiz', [])
                                 if (currentValue && currentValue.indexOf("? string:") == 0) {
                                     $(element).val(currentValue.substring(9, currentValue.length - 2));
                                 }
+                                else if (currentValue && currentValue.indexOf("? object:null") == -1) {
+                                    $(element).val(currentValue);
+                                }
                                 else if (defaultValue) {
                                     $(element).val(defaultValue);
                                 }
