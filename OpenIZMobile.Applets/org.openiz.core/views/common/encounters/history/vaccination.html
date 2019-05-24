@@ -60,7 +60,7 @@
                                    ng-change="harmonizeDoseTimes(sequence, $index)"
                                    max="{{sequence._enabled ? $root.page.maxEventTime : '' | date:'yyyy-MM-dd'}}"
                                    min="{{(event[sequence.doseSequence - 1] == null || !sequence._enabled || !event[sequence.doseSequence - 1]._enabled ? patient.dateOfBirth : event[sequence.doseSequence - 1].actTime)| date:'yyyy-MM-dd'}}" />
-                            <div class="help-block text-warning" ng-if="sequence._enabled &amp;&amp; sequence.actTime >= $root.page.currentTime.trunc()">
+                            <div class="help-block text-warning" ng-if="sequence._enabled &amp;&amp; !validateVaccinationTime(sequence)">
                                 <i class="fa fa-exclamation-triangle"></i> {{ 'locale.patient.errors.historicalVaccination.today' | i18n }}
                             </div>
                             <div class="help-block text-danger" ng-if="editPatientForm['enabledImmunizationDate-' + antigenName + '-' + $index].$invalid  ">

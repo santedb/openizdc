@@ -128,6 +128,7 @@ namespace OpenIZ.Mobile.Core.Xamarin.Services.ServiceHandlers
                     if (!itm.Participations.Any(o => o.ParticipationRoleKey == ActParticipationKey.Location || o.ParticipationRole?.Mnemonic == "Location"))
                         itm.Participations.Add(new ActParticipation(ActParticipationKey.Location, sdlKey));
 
+            //var originalPlan = plan.ToArray();
             // Instructions?
             if (search.Count > 0)
             {
@@ -135,7 +136,7 @@ namespace OpenIZ.Mobile.Core.Xamarin.Services.ServiceHandlers
                 plan.RemoveAll(o => !pred(o));
             }
 
-            return new Bundle() { Item = plan.OfType<IdentifiedData>().ToList() };
+            return new Bundle() { Item = plan.OfType<IdentifiedData>().ToList(), Count = plan.Count() };
             //return plan;
         }
 
