@@ -334,6 +334,7 @@ var OpenIZ = OpenIZ || {
                     fulfills = new OpenIZModel.ControlAct(act);
                     break;
                 default:
+                    fulfills = new OpenIZModel.Act(act);
                     break;
             }
 
