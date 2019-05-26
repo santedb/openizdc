@@ -138,7 +138,7 @@ namespace OpenIZ.Mobile.Core.Xamarin.Services.ServiceHandlers
 
             return new Bundle() { Item = plan.OfType<IdentifiedData>().ToList(), Count = plan.Count() };
             //return plan;
-        }
+        } 
 
         /// <summary>
         /// Care plan fault provider
