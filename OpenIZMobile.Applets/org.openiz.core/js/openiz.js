@@ -339,7 +339,7 @@ var OpenIZ = OpenIZ || {
             }
 
             // Re-assign the identifier
-            fulfills.tag = {};
+            fulfills.tag = fulfills.tag || {};
             if (act.stopTime < new Date())
                 fulfills.tag.backEntry = true;
             
