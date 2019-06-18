@@ -90,6 +90,12 @@ namespace OpenIZ.Mobile.Core.Alerting
 		{
 			try
 			{
+                if (SQLiteConnectionManager.Current == null)
+                {
+                    totalCount= 0;
+                    return new List<AlertMessage>();
+                }
+
 				var conn = SQLiteConnectionManager.Current.GetConnection(this.m_connectionString);
 				using (conn.Lock())
 				{
