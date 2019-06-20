@@ -68,9 +68,16 @@ namespace OpenIZ.Mobile.Core.Configuration.Data.Migrations
 
 
             // Now get the synchronization log and translate the earliest value to this
-            var lastSync = SynchronizationLog.Current.GetAll().Min(o => o.LastSync);
-            SynchronizationLog.Current.Save(typeof(Act), $"_subscription=decad40c-a232-482f-b93d-317b25c1ef0d&_placeid={facility}&_expand=relationship_expand=participation", null, "locale.sync.act.my", lastSync);
-            SynchronizationLog.Current.Save(typeof(Entity), $"_subscription=81b65812-c14e-4bb4-b7a1-ca7bcee83dbc&_placeid={facility}&_expand=relationship_expand=participation", null, "locale.sync.entity.my", lastSync);
+            try
+            {
+                var lastSync = SynchronizationLog.Current.GetAll().Min(o => o.LastSync);
+                SynchronizationLog.Current.Save(typeof(Act), $"_subscription=decad40c-a232-482f-b93d-317b25c1ef0d&_placeid={facility}&_expand=relationship_expand=participation", null, "locale.sync.act.my", lastSync);
+                SynchronizationLog.Current.Save(typeof(Entity), $"_subscription=81b65812-c14e-4bb4-b7a1-ca7bcee83dbc&_placeid={facility}&_expand=relationship_expand=participation", null, "locale.sync.entity.my", lastSync);
+            }
+            catch(Exception e)
+            {
+                this.tracer.TraceError("Cannot set last sync date: {0}", e);
+            }
             return true;
         }
     }
