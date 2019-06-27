@@ -383,7 +383,8 @@ namespace OpenIZ.Mobile.Core.Synchronization
                     {
                         // Reconstitute bundle
                         var bundle = dpe as Bundle;
-                        bundle?.Reconstitute();
+                        if(bundle?.EntryKey.HasValue == true)
+                            bundle?.Reconstitute();
                         dpe = bundle?.Entry ?? dpe;
 
                         // Send the object to the remote host

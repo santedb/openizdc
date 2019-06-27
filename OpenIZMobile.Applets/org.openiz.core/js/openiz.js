@@ -334,11 +334,12 @@ var OpenIZ = OpenIZ || {
                     fulfills = new OpenIZModel.ControlAct(act);
                     break;
                 default:
+                    fulfills = new OpenIZModel.Act(act);
                     break;
             }
 
             // Re-assign the identifier
-            fulfills.tag = {};
+            fulfills.tag = fulfills.tag || {};
             if (act.stopTime < new Date())
                 fulfills.tag.backEntry = true;
             
@@ -2449,7 +2450,7 @@ var OpenIZ = OpenIZ || {
         showWait: function (controlItem) {
             OpenIZ.App._originalText[controlItem] = $(controlItem).html();
             $(controlItem).attr('disabled', 'disabled');
-            $(controlItem).html("<img src='/org.openiz.core/img/ajax-loader.gif' class='spinloader'> " + OpenIZ.Localization.getString("locale.dialog.wait.text"));
+            $(controlItem).html("<i class='fa fa-circle-o-notch fa-spin'></i> " + OpenIZ.Localization.getString("locale.dialog.wait.text"));
         },
         /**
          * @summary Returns whether the internet is available

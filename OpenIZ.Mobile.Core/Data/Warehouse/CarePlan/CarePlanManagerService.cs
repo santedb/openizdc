@@ -257,7 +257,7 @@ namespace OpenIZ.Mobile.Core.Data.Warehouse
 
                             ApplicationContext.Current.SetProgress(String.Format(Strings.locale_calculatingCarePlan, this.m_actCarePlanPromise.Count), (promiseCount - this.m_actCarePlanPromise.Count) / (float)promiseCount);
                             IdentifiedData qitm = null;
-                            qitm = this.m_actCarePlanPromise.First();
+                            qitm = this.m_actCarePlanPromise.FirstOrDefault();
                             if (qitm is Patient)
                             {
                                 Patient[] patients = null;

@@ -39,10 +39,23 @@ angular.module('layout').controller('VaccinationHistoryController', ['$scope', '
     // TODO: Change this to be an AJAX call
     scope.display._vaccineAdministrations = {};
     scope.harmonizeDoseTimes = harmonizeDoseTimes;
+    scope.validateVaccinationTime = validateVaccinationTime;
+
+    // Check that vaccination is valid 
+    function validateVaccinationTime(vaccination) {
+        if (!vaccination._enabled) return true;
+        var valid = vaccination.actTime <= new Date().addDays(-4);
+        if (!valid) return valid;
+
+        // Validate that the next dose is not ahead of us by more than 2 weeks (i.e. the user is indicating that)
+        var nd = scope.display._vaccineAdministrations[vaccination.participation.Product.playerModel.name.Assigned.component.$other.value][vaccination.doseSequence + 1];
+        valid &= !nd || nd._originalTime <= new Date().addDays(7);
+        return valid;
+    }
 
     // Harmonize dose sequence times
     function harmonizeDoseTimes(doseSequence, index) {
-        if (!doseSequence._enabled) return;
+        if (!doseSequence._enabled || !doseSequence.actTime) return;
         for (var antigenId in scope.display._vaccineAdministrations) {
             if (scope.display._vaccineAdministrations[antigenId] &&
                 scope.display._vaccineAdministrations[antigenId][index] &&

@@ -24,7 +24,7 @@
 /// <reference path="~/lib/angular.min.js"/>
 /// <reference path="~/lib/jquery.min.js"/>
 
-angular.module('layout').controller('EncounterEntryController', ['$scope', '$timeout', function ($scope, $timeout) {
+angular.module('layout').controller('EncounterEntryController', ['$scope', '$timeout', '$rootScope', function ($scope, $timeout, $rootScope) {
     // Get the current scope that we're in
     var scope = $scope;
     scope.missingConsumables = [];
@@ -405,5 +405,35 @@ angular.module('layout').controller('EncounterEntryController', ['$scope', '$tim
         else if (scope.missingConsumables[actId].indexOf(name) === -1) {
             scope.missingConsumables[actId].push(name);
         }
+    }
+
+    /**
+     * Gets the lot number selected for the product for the session
+     */
+    scope.getSessionLot = function (productId, assignTo) {
+
+        OpenIZ.Ims.get({
+            resource: "EntityRelationship",
+            query: {
+                source: productId,
+                relationshipType: "AC45A740-B0C7-4425-84D8-B3F8A41FEF9F",
+                "target.relationship[OwnedEntity].source": $rootScope.session.entity.relationship.DedicatedServiceDeliveryLocation.target
+            },
+            continueWith: function (data) {
+                var sessionLots = $.map(scope.vaccinationSession.participation.Consumable, function (c) { return c.player; });
+                var selected = $.grep(data.item, function (i) {
+                    return sessionLots.indexOf(i.target) > -1;
+                });
+                
+                console.info(selected[0].target);
+                assignTo.player = selected[0].target;
+                $scope.$apply();
+            },
+            onException: function (ex) {
+                // HACK: Older versions of APK will report 404 we don't want that in our logs
+                if (!ex.details || ex.details != "Not Found" && ex.details.status != 404)
+                    console.log(ex);
+            }
+        });
     }
 }]);

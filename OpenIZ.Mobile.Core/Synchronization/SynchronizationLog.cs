@@ -110,7 +110,7 @@ namespace OpenIZ.Mobile.Core.Synchronization
         /// <summary>
         /// Save the sync log entry
         /// </summary>
-        public void Save(Type modelType, String filter, String eTag, String name)
+        public void Save(Type modelType, String filter, String eTag, String name, DateTime? lastSync = null)
         {
             var conn = this.CreateConnection();
             using (conn.Lock())
@@ -118,10 +118,10 @@ namespace OpenIZ.Mobile.Core.Synchronization
                 var modelAqn = modelType.GetTypeInfo().GetCustomAttribute<XmlTypeAttribute>().TypeName;
                 var logEntry = conn.Table<SynchronizationLogEntry>().Where(o => o.ResourceType == modelAqn && o.Filter == filter).FirstOrDefault();
                 if (logEntry == null)
-                    conn.Insert(new SynchronizationLogEntry() { ResourceType = modelAqn, Filter = filter, LastETag = eTag, LastSync = DateTime.Now });
+                    conn.Insert(new SynchronizationLogEntry() { ResourceType = modelAqn, Filter = filter, LastETag = eTag, LastSync = lastSync ?? DateTime.Now });
                 else
                 {
-                    logEntry.LastSync = DateTime.Now;
+                    logEntry.LastSync = lastSync ?? DateTime.Now;
                     if (!String.IsNullOrEmpty(eTag))
                         logEntry.LastETag = eTag;
                     conn.Update(logEntry);
