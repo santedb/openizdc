@@ -44,7 +44,7 @@ angular.module('layout').controller('VaccinationHistoryController', ['$scope', '
     // Check that vaccination is valid 
     function validateVaccinationTime(vaccination) {
         if (!vaccination._enabled) return true;
-        var valid = vaccination.actTime <= new Date().addDays(-3);
+        var valid = vaccination.actTime <= new Date().addDays(-4);
         if (!valid) return valid;
 
         // Validate that the next dose is not ahead of us by more than 2 weeks (i.e. the user is indicating that)
@@ -55,7 +55,7 @@ angular.module('layout').controller('VaccinationHistoryController', ['$scope', '
 
     // Harmonize dose sequence times
     function harmonizeDoseTimes(doseSequence, index) {
-        if (!doseSequence._enabled) return;
+        if (!doseSequence._enabled || !doseSequence.actTime) return;
         for (var antigenId in scope.display._vaccineAdministrations) {
             if (scope.display._vaccineAdministrations[antigenId] &&
                 scope.display._vaccineAdministrations[antigenId][index] &&

@@ -85,7 +85,7 @@ namespace OpenIZ.Mobile.Core.Configuration.Data.Migrations
             }
             catch(Exception e)
             {
-                this.tracer.TraceError("Could not copy last sync time: {0}", e);
+                this.tracer.TraceError("Cannot set last sync date: {0}", e);
             }
             return true;
         }
