@@ -185,7 +185,7 @@ namespace OpenIZ.Mobile.Core.Data.Warehouse
                     var lastRefresh = DateTime.Parse(ApplicationContext.Current.Configuration.GetAppSetting("openiz.mobile.core.protocol.plan.lastRun") ?? "0001-01-01");
 
                     // Should we ?
-                    var patientSync = SynchronizationLog.Current.GetAll().FirstOrDefault(o => o.ResourceType == "Person");
+                    var patientSync = SynchronizationLog.Current.GetAll().FirstOrDefault(o => o.ResourceType == "Entity");
 
                     this.RefreshCarePlan(false);
                     remoteSyncService.PullCompleted += (o, e) => { if (!remoteSyncService.IsSynchronizing) this.m_resetEvent.Set(); };
