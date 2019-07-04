@@ -19,9 +19,12 @@
  */
 using OpenIZ.Core.Alert.Alerting;
 using OpenIZ.Core.Model;
+using OpenIZ.Core.Model.Acts;
 using OpenIZ.Core.Model.Collection;
+using OpenIZ.Core.Model.Entities;
 using OpenIZ.Core.Model.Interfaces;
 using OpenIZ.Core.Model.Patch;
+using OpenIZ.Core.Model.Roles;
 using OpenIZ.Core.Services;
 using OpenIZ.Mobile.Core.Alerting;
 using OpenIZ.Mobile.Core.Configuration;
@@ -368,7 +371,6 @@ namespace OpenIZ.Mobile.Core.Synchronization
                     // Exhaust the outbound queue
                     var integrationService = OpenIZ.Mobile.Core.ApplicationContext.Current.GetService<IClinicalIntegrationService>();
                     var syncItm = SynchronizationQueue.Outbound.PeekRaw();
-                    var dpe = SynchronizationQueue.Outbound.DeserializeObject(syncItm);
 
                     // TODO: Sleep thread here
                     if (!integrationService.IsAvailable())
@@ -379,13 +381,31 @@ namespace OpenIZ.Mobile.Core.Synchronization
                     }
 
                     // try to send
+                    IdentifiedData dpe = null;
                     try
                     {
+                        dpe = SynchronizationQueue.Outbound.DeserializeObject(syncItm);
+
                         // Reconstitute bundle
                         var bundle = dpe as Bundle;
-                        if(bundle?.EntryKey.HasValue == true)
-                            bundle?.Reconstitute();
-                        dpe = bundle?.Entry ?? dpe;
+                        if (bundle != null && syncItm.IsRetry)
+                        {
+                            this.m_tracer.TraceInfo("RETRY: Will try with all available data");
+                            // Try to grab all references in the bundle
+                            foreach (var itm in bundle.Item.OfType<Act>().ToList())
+                            {
+                                foreach(var ptcpt in itm.Participations.ToList())
+                                    if (!bundle.Item.Any(i => i.Key == ptcpt.PlayerEntityKey))
+                                        bundle.Item.Add(ptcpt.LoadProperty<Entity>(nameof(ActParticipation.PlayerEntity)));
+                            }
+                            foreach(var itm in bundle.Item.OfType<Patient>().ToList())
+                            {
+                                foreach(var rel in itm.Relationships.ToList())
+                                    if(!bundle.Item.Any(i=>i.Key == rel.TargetEntityKey))
+                                        bundle.Item.Add(rel.LoadProperty<Entity>(nameof(EntityRelationship.TargetEntity)));
+
+                            }
+                        }
 
                         // Send the object to the remote host
                         switch (syncItm.Operation)
