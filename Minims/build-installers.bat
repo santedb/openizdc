@@ -2,7 +2,7 @@
 set version=%1
 
 echo Building Windows Installer
-"c:\Program Files (x86)\Inno Setup 5\ISCC.exe" "/o.\dist" ".\install.iss"
+"c:\Program Files (x86)\Inno Setup 5\ISCC.exe" "/o.\dist" ".\install.iss" "/dMyAppVersion=%1"
 
 echo Building Linux Tarball
 
