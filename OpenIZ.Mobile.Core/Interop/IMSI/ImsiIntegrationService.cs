@@ -177,7 +177,7 @@ namespace OpenIZ.Mobile.Core.Interop.IMSI
                 client.Client.Credentials = this.GetCredentials(client.Client);
                 if (client.Client.Credentials == null) return null;
                 if (options?.Timeout.HasValue == true)
-                    client.Client.Description.Endpoint[0].Timeout = options.Timeout.Value;
+                    client.Client.Description.Endpoint[0].Timeout = options.Timeout.Value * 2;
 
                 this.m_tracer.TraceVerbose("Performing IMSI query ({0}):{1}", typeof(TModel).FullName, predicate);
 
