@@ -3,15 +3,35 @@
   <server>
     <definition invariant="npgsql">
       <![CDATA[
-      SELECT * FROM
-        ACT_VRSN_TBL
-        INNER JOIN ACT_TBL USING (ACT_ID)
-      WHERE ACT_ID IN (
-        SELECT DISTINCT ACT_ID FROM (
-          SELECT ACT_ID FROM ACT_PTCPT_TBL WHERE ENT_ID = $placeid$
-          UNION ALL
-          SELECT ACT_ID FROM ACT_PTCPT_TBL WHERE ENT_ID IN (SELECT SRC_ENT_ID FROM ENT_REL_TBL WHERE TRG_ENT_ID = $placeid$)
-      ) I)
+      WITH ptcpts AS (
+	      SELECT ACT_ID 
+	      FROM 	
+		      ACT_PTCPT_TBL 
+	      WHERE 
+		      ENT_ID = $placeid$
+        UNION ALL
+	      SELECT ACT_ID 
+	      FROM 
+		      ACT_PTCPT_TBL 
+	      WHERE 
+		      ROL_CD_ID IN ('61848557-d78d-40e5-954f-0b9c97307a04','ac05185b-5a80-47a8-b924-060deb6d0eb2') 
+		      AND ENT_ID IN (
+			      SELECT SRC_ENT_ID 
+			      FROM 
+				      ENT_REL_TBL 
+			      WHERE 
+				      REL_TYP_CD_ID = '455f1772-f580-47e8-86bd-b5ce25d351f9' 
+				      AND OBSLT_VRSN_SEQ_ID IS NULL 
+				      AND TRG_ENT_ID = $placeid$
+		      )
+      )
+      SELECT *
+      FROM
+	      ACT_VRSN_TBL 
+	      INNER JOIN ACT_TBL USING (ACT_ID)
+      WHERE
+	      OBSLT_UTC IS NULL 
+	      AND ACT_ID IN (SELECT * FROM ptcpts)
       ]]>
     </definition>
   </server>
