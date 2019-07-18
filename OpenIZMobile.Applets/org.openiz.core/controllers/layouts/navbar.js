@@ -109,8 +109,9 @@ angular.module('layout').controller('LayoutController', ['$scope', '$interval', 
         if ($rootScope.session != null) 
             OpenIZ.Queue.getQueueAsync({
                 queueName: OpenIZ.Queue.QueueNames.DeadLetterQueue,
-                continueWith: function (data) {
+                continueWith: function (data, state, jqr) {
                     $scope.conflicts = data;
+                    $scope.syncState = jqr.getResponseHeader("x-openiz-syncstate") === "true";
                 },
                 onException: function() {}
             });
