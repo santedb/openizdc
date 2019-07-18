@@ -45,7 +45,8 @@ namespace OpenIZ.Mobile.Core.Configuration.Data.Migrations
                 s.Name != "locale.sync.resource.Place.state"
             );
             this.tracer.TraceInfo("Removed {0} subscriptions...", removed);
-            foreach(var s in syncSection.SynchronizationResources)
+            foreach(var s in syncSection.SynchronizationResources.Where(s=> s.Name != "locale.sync.resource.Place.outOfState" &&
+                s.Name != "locale.sync.resource.Place.state"))
                 s.Filters.RemoveAll(f => !f.Contains("id=") && f.Contains(facility));
             syncSection.SynchronizationResources.RemoveAll(s => 
                 s.Filters.Any() && 
