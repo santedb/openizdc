@@ -241,7 +241,7 @@
                         <span class="glyphicon glyphicon-exclamation-sign"></span> {{ 'locale.sync.retry' | i18n }}
                     </span>
                 </button>
-                <button ng-disabled="!$root.page.onlineState" id="forceSync" ng-click="forceSync()" class="btn btn-lg btn-info">
+                <button ng-disabled="!$root.page.onlineState || syncState" id="forceSync" ng-click="forceSync()" class="btn btn-lg btn-info">
                     <span>
                         <span class="glyphicon glyphicon-cloud-upload"></span> {{ 'locale.sync.force' | i18n }}
                     </span>

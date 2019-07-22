@@ -1334,20 +1334,20 @@ var OpenIZ = OpenIZ || {
         simpleGet: function (url, controlData, useRaw) {
             controlData.onException = controlData.onException || OpenIZ.Util.logException;
             if (!useRaw)
-                $.getJSON(url, controlData.query, function (data) {
+                $.getJSON(url, controlData.query, function (data, status, jqr) {
 
                     try {
                         if (data != null && data.error !== undefined)
                             controlData.onException(new OpenIZModel.Exception(data.type, data.error, null, null), controlData.state
                             );
                         else if (data != null) {
-                            controlData.continueWith(data, controlData.state);
+                            controlData.continueWith(data, controlData.state, jqr);
                         }
                         else
                             controlData.onException(new OpenIZModel.Exception("Exception", "err_general",
                                 data,
                                    null
-                            ), controlData.state);
+                            ), controlData.state, jqr);
 
                     }
                     catch (e) {
