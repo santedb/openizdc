@@ -350,10 +350,7 @@ namespace OpenIZ.Mobile.Core.Synchronization
                         // Queue the act of queueing
                         if (result != null)
                         {
-                            if (count == 5000 && perfTimer.ElapsedMilliseconds < 40000 ||
-                                count < 5000 && result.TotalResults > 20000 && perfTimer.ElapsedMilliseconds < 40000)
-                                count = 5000;
-                            else if (count == 2500 && perfTimer.ElapsedMilliseconds < 30000 ||
+                            if (count == 2500 && perfTimer.ElapsedMilliseconds < 30000 ||
                                 count < 2500 && result.TotalResults > 10000 && perfTimer.ElapsedMilliseconds < 30000)
                                 count = 2500;
                             else if (count == 1000 && perfTimer.ElapsedMilliseconds < 20000 ||
