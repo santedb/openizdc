@@ -20,7 +20,7 @@ namespace OpenIZ.Mobile.Core.Resources {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Strings {
@@ -303,6 +303,24 @@ namespace OpenIZ.Mobile.Core.Resources {
         internal static string locale_rejectionSubject {
             get {
                 return ResourceManager.GetString("locale_rejectionSubject", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Resubmitting Queue Objects....
+        /// </summary>
+        internal static string locale_requeueing {
+            get {
+                return ResourceManager.GetString("locale_requeueing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to There are synchronization conflicts on your tablet. Do you want to try to resubmit them?.
+        /// </summary>
+        internal static string locale_retry {
+            get {
+                return ResourceManager.GetString("locale_retry", resourceCulture);
             }
         }
         
