@@ -133,7 +133,8 @@ namespace OpenIZ.Mobile.Core.Data.Persistence
                                 int i = 0;
                                 foreach (var tbl in columnMapping)
                                 {
-                                    memConnection.Execute($"INSERT OR REPLACE INTO file_db.{tbl.TableName} SELECT * FROM {tbl.TableName}");
+                                    var colNames = String.Join(",", tbl.Columns.Select(o => o.Name).ToArray());
+                                    memConnection.Execute($"INSERT OR REPLACE INTO file_db.{tbl.TableName} ({colNames}) SELECT {colNames} FROM {tbl.TableName}");
                                     ApplicationContext.Current.SetProgress(Strings.locale_committing, (float)i++ / columnMapping.Count);
 
                                 }

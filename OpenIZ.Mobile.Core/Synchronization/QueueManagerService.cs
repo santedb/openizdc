@@ -611,28 +611,35 @@ namespace OpenIZ.Mobile.Core.Synchronization
             if (dlc > 0 &&
                 ApplicationContext.Current.Confirm(Strings.locale_retry))
             {
-                int i = 0;
-                while(SynchronizationQueue.DeadLetter.Count() > 0)
+                try
                 {
-                    ApplicationContext.Current.SetProgress(Strings.locale_requeueing, ((float)i++)/(float)dlc);
-
-                    var itm = SynchronizationQueue.DeadLetter.PeekRaw();
-                    switch(itm.OriginalQueue)
+                    int i = 0;
+                    while (SynchronizationQueue.DeadLetter.Count() > 0)
                     {
-                        case "inbound":
-                        case "inbound_queue":
-                            SynchronizationQueue.Inbound.EnqueueRaw(new InboundQueueEntry(itm));
-                            break;
-                        case "outbound":
-                        case "outbound_queue":
-                            SynchronizationQueue.Outbound.EnqueueRaw(new OutboundQueueEntry(itm));
-                            break;
-                        case "admin":
-                        case "admin_queue":
-                            SynchronizationQueue.Admin.EnqueueRaw(new OutboundAdminQueueEntry(itm));
-                            break;
+                        ApplicationContext.Current.SetProgress(Strings.locale_requeueing, ((float)i++) / (float)dlc);
+
+                        var itm = SynchronizationQueue.DeadLetter.PeekRaw();
+                        switch (itm.OriginalQueue)
+                        {
+                            case "inbound":
+                            case "inbound_queue":
+                                SynchronizationQueue.Inbound.EnqueueRaw(new InboundQueueEntry(itm));
+                                break;
+                            case "outbound":
+                            case "outbound_queue":
+                                SynchronizationQueue.Outbound.EnqueueRaw(new OutboundQueueEntry(itm));
+                                break;
+                            case "admin":
+                            case "admin_queue":
+                                SynchronizationQueue.Admin.EnqueueRaw(new OutboundAdminQueueEntry(itm));
+                                break;
+                        }
+                        SynchronizationQueue.DeadLetter.Delete(itm.Id);
                     }
-                    SynchronizationQueue.DeadLetter.Delete(itm.Id);
+                }
+                catch (Exception e)
+                {
+                    this.m_tracer.TraceInfo("Could not re-queue items: {0}", e.Message);
                 }
             }
 
