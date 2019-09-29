@@ -3,35 +3,19 @@
   <server>
     <definition invariant="npgsql">
       <![CDATA[
-      WITH ptcpts AS (
-	      SELECT ACT_ID 
-	      FROM 	
-		      ACT_PTCPT_TBL 
-	      WHERE 
-		      ENT_ID = $placeid$
-        UNION ALL
-	      SELECT ACT_ID 
-	      FROM 
-		      ACT_PTCPT_TBL 
-	      WHERE 
-		      ROL_CD_ID IN ('61848557-d78d-40e5-954f-0b9c97307a04','ac05185b-5a80-47a8-b924-060deb6d0eb2') 
-		      AND ENT_ID IN (
-			      SELECT SRC_ENT_ID 
-			      FROM 
-				      ENT_REL_TBL 
-			      WHERE 
-				      REL_TYP_CD_ID = '455f1772-f580-47e8-86bd-b5ce25d351f9' 
-				      AND OBSLT_VRSN_SEQ_ID IS NULL 
-				      AND TRG_ENT_ID = $placeid$
-		      )
-      )
-      SELECT *
-      FROM
-	      ACT_VRSN_TBL 
-	      INNER JOIN ACT_TBL USING (ACT_ID)
-      WHERE
-	      OBSLT_UTC IS NULL 
-	      AND ACT_ID IN (SELECT * FROM ptcpts)
+	     SELECT act_vrsn_tbl.*
+        FROM 
+	        act_vrsn_tbl 
+        WHERE 
+	        obslt_utc is null AND
+	        act_id IN (
+	              SELECT ACT_ID 
+	              FROM 	
+		              ACT_PTCPT_TBL 
+	              WHERE 
+			        (ROL_CD_ID IN ('61848557-d78d-40e5-954f-0b9c97307a04','02bb7934-76b5-4cc5-bd42-58570f15eb4d','ac05185b-5a80-47a8-b924-060deb6d0eb2') AND ENT_ID = $placeid$)
+			        OR (ROL_CD_ID = '3f92dbee-a65e-434f-98ce-841feeb02e3f' AND ENT_ID IN (SELECT src_ent_id FROM ent_rel_part_dsdl_tbl WHERE REL_TYP_CD_ID = '455f1772-f580-47e8-86bd-b5ce25d351f9' AND ent_rel_part_dsdl_tbl.obslt_vrsn_seq_id is null and trg_ent_id =  $placeid$))
+              )
       ]]>
     </definition>
   </server>
