@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2015-2018 Mohawk College of Applied Arts and Technology
+ * Copyright 2015-2019 Mohawk College of Applied Arts and Technology
  * 
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you 
@@ -14,12 +14,15 @@
  * License for the specific language governing permissions and limitations under 
  * the License.
  * 
- * User: fyfej
- * Date: 2017-9-1
+ * User: justi
+ * Date: 2018-7-7
  */
 using Android.App;
 using Android.Content;
+using Android.Runtime;
 using Android.Util;
+using Android.Views;
+using Android.Views.InputMethods;
 using Android.Webkit;
 using OpenIZ.Mobile.Core.Android.AppletEngine.JNI;
 using OpenIZ.Mobile.Core.Diagnostics;
@@ -105,11 +108,11 @@ namespace OpenIZ.Mobile.Core.Android.AppletEngine
 			this.SetWebChromeClient(new AppletWebChromeClient(this.Context));
 		}
 
-		/// <summary>
-		/// Load URL
-		/// </summary>
-		/// <param name="url"></param>
-		public override void LoadUrl(string url)
+        /// <summary>
+        /// Load URL
+        /// </summary>
+        /// <param name="url"></param>
+        public override void LoadUrl(string url)
 		{
 			Uri uri = null;
 			var unlockDictionary = new Dictionary<String, String>()
@@ -141,20 +144,30 @@ namespace OpenIZ.Mobile.Core.Android.AppletEngine
 			return "";
 		}
 
-		/// <summary>
-		/// Applet web view client.
-		/// </summary>
-		private class AppletWebViewClient : WebViewClient
+        /// <summary>
+        /// Check if the object is a test editor
+        /// </summary>
+        /// <returns></returns>
+        public override bool OnCheckIsTextEditor()
+        {
+            return true;
+        }
+
+        /// <summary>
+        /// Applet web view client.
+        /// </summary>
+        private class AppletWebViewClient : WebViewClient
 		{
+
 			// Tracer
 			private Tracer m_tracer = Tracer.GetTracer(typeof(AppletWebView));
 
-			/// <summary>
-			/// Initializes a new instance of the
-			/// <see cref="OpenIZ.Mobile.Core.Android.AppletEngine.AppletWebView+AppletWebViewClient"/> class.
-			/// </summary>
-			/// <param name="applet">Applet.</param>
-			public AppletWebViewClient()
+            /// <summary>
+            /// Initializes a new instance of the
+            /// <see cref="OpenIZ.Mobile.Core.Android.AppletEngine.AppletWebView+AppletWebViewClient"/> class.
+            /// </summary>
+            /// <param name="applet">Applet.</param>
+            public AppletWebViewClient()
 			{
 			}
 
@@ -182,14 +195,20 @@ namespace OpenIZ.Mobile.Core.Android.AppletEngine
 				return true;
 			}
 
-			///// <summary>
-			///// Page is finished
-			///// </summary>
-			//public override void OnPageFinished(WebView view, string url)
-			//{
-			//    AndroidApplicationContext.Current.SetProgress(null, 1.0f);
-			//}
-		}
+            ///// <summary>
+            ///// Page is finished
+            ///// </summary>
+            //public override void OnPageFinished(WebView view, string url)
+            //{
+            //    AndroidApplicationContext.Current.SetProgress(null, 1.0f);
+            //}
+
+            public override void OnUnhandledKeyEvent(WebView view, KeyEvent e)
+            {
+                base.OnUnhandledKeyEvent(view, e);
+                this.m_tracer.TraceError("Unhandled Key Event: Code = {0}, Dev = {1}", e.KeyCode, e.DeviceId);
+            }
+        }
 
 		/// <summary>
 		/// Chrome client

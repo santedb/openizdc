@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2015-2018 Mohawk College of Applied Arts and Technology
+ * Copyright 2015-2019 Mohawk College of Applied Arts and Technology
  * 
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you 
@@ -14,8 +14,8 @@
  * License for the specific language governing permissions and limitations under 
  * the License.
  * 
- * User: fyfej
- * Date: 2017-9-1
+ * User: justi
+ * Date: 2018-7-7
  */
 using OpenIZ.Core.Alert.Alerting;
 using OpenIZ.Core.Model;
@@ -606,6 +606,42 @@ namespace OpenIZ.Mobile.Core.Synchronization
                 ApplicationContext.Current.GetService<IThreadPoolService>().QueueNonPooledWorkItem(startup, null);
             };
 
+            // Does the outbound queue have data?
+            int dlc = SynchronizationQueue.DeadLetter.Count();
+            if (dlc > 0 &&
+                ApplicationContext.Current.Confirm(Strings.locale_retry))
+            {
+                try
+                {
+                    int i = 0;
+                    while (SynchronizationQueue.DeadLetter.Count() > 0)
+                    {
+                        ApplicationContext.Current.SetProgress(Strings.locale_requeueing, ((float)i++) / (float)dlc);
+
+                        var itm = SynchronizationQueue.DeadLetter.PeekRaw();
+                        switch (itm.OriginalQueue)
+                        {
+                            case "inbound":
+                            case "inbound_queue":
+                                SynchronizationQueue.Inbound.EnqueueRaw(new InboundQueueEntry(itm));
+                                break;
+                            case "outbound":
+                            case "outbound_queue":
+                                SynchronizationQueue.Outbound.EnqueueRaw(new OutboundQueueEntry(itm));
+                                break;
+                            case "admin":
+                            case "admin_queue":
+                                SynchronizationQueue.Admin.EnqueueRaw(new OutboundAdminQueueEntry(itm));
+                                break;
+                        }
+                        SynchronizationQueue.DeadLetter.Delete(itm.Id);
+                    }
+                }
+                catch (Exception e)
+                {
+                    this.m_tracer.TraceInfo("Could not re-queue items: {0}", e.Message);
+                }
+            }
 
             this.Started?.Invoke(this, EventArgs.Empty);
 

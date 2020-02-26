@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2015-2018 Mohawk College of Applied Arts and Technology
+ * Copyright 2015-2019 Mohawk College of Applied Arts and Technology
  * 
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you 
@@ -14,8 +14,8 @@
  * License for the specific language governing permissions and limitations under 
  * the License.
  * 
- * User: fyfej
- * Date: 2017-9-1
+ * User: justi
+ * Date: 2018-7-7
  */
 using System;
 using System.Collections.Generic;
@@ -57,6 +57,34 @@ namespace OpenIZMobile
         private TextView m_textView;
         private Tracer m_tracer = Tracer.GetTracer(typeof(AppletActivity));
 
+
+        /// <summary>
+        /// Dispatch key event send to activity
+        /// </summary>
+        public override bool DispatchKeyEvent(KeyEvent e)
+        {
+            var firstDistpatch = base.DispatchKeyEvent(e);
+            this.m_tracer.TraceInfo("Key Event: Code = {0}, Event = {1}, DevId = {2}", e.KeyCode, e.Action, e.DeviceId);
+            return firstDistpatch;
+        }
+
+        /// <summary>
+        /// Key down
+        /// </summary>
+        public override bool OnKeyDown([GeneratedEnum] Keycode keyCode, KeyEvent e)
+        {
+            this.m_tracer.TraceInfo("Key Down: Code = {0}, Event = {1}, DevId = {2}", e.KeyCode, e.Action, e.DeviceId);
+            return base.OnKeyDown(keyCode, e);
+        }
+
+        /// <summary>
+        /// Key up
+        /// </summary>
+        public override bool OnKeyUp([GeneratedEnum] Keycode keyCode, KeyEvent e)
+        {
+            this.m_tracer.TraceInfo("Key Up: Code = {0}, Event = {1}, DevId = {2}", e.KeyCode, e.Action, e.DeviceId);
+            return base.OnKeyUp(keyCode, e);
+        }
 
         /// <summary>
         /// Called when the activity has detected the user's press of the back

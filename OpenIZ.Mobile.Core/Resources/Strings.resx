@@ -245,4 +245,10 @@ Sincerely,
   <data name="locale_preparingPush" xml:space="preserve">
     <value>Preparing to push data...</value>
   </data>
+  <data name="locale_retry" xml:space="preserve">
+    <value>There are synchronization conflicts on your tablet. Do you want to try to resubmit them?</value>
+  </data>
+  <data name="locale_requeueing" xml:space="preserve">
+    <value>Resubmitting Queue Objects...</value>
+  </data>
 </root>
