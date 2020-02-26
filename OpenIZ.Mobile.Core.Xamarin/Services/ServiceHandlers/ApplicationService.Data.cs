@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2015-2018 Mohawk College of Applied Arts and Technology
+ * Copyright 2015-2019 Mohawk College of Applied Arts and Technology
  * 
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you 
@@ -14,8 +14,8 @@
  * License for the specific language governing permissions and limitations under 
  * the License.
  * 
- * User: fyfej
- * Date: 2017-9-1
+ * User: justi
+ * Date: 2018-7-7
  */
 using OpenIZ.Core.Model.Query;
 using OpenIZ.Mobile.Core.Security;
@@ -229,7 +229,7 @@ namespace OpenIZ.Mobile.Core.Xamarin.Services.ServiceHandlers
 
             ApplicationContext.Current.SaveConfiguration();
         }
-
+        
         /// <summary>
         /// Force a re-synchronization
         /// </summary>
@@ -384,6 +384,10 @@ namespace OpenIZ.Mobile.Core.Xamarin.Services.ServiceHandlers
             int offset = Int32.Parse(MiniImsServer.CurrentContext.Request.QueryString["_offset"] ?? "0"),
                 count = Int32.Parse(MiniImsServer.CurrentContext.Request.QueryString["_count"] ?? "100"),
                 totalResults = 0;
+
+            var qmService = ApplicationContext.Current.GetService<QueueManagerService>();
+            if (qmService.IsBusy || ApplicationContext.Current.GetService<ISynchronizationService>().IsSynchronizing || s_isDownloading)
+                MiniImsServer.CurrentContext.Response.AddHeader("X-OpenIZ-SyncState", "true");
 
             var explId = MiniImsServer.CurrentContext.Request.QueryString["_id"];
             if (!String.IsNullOrEmpty(explId))

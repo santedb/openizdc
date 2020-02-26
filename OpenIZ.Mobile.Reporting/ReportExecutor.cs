@@ -401,7 +401,7 @@ namespace OpenIZ.Mobile.Reporting
             }
             else if(facet.Name == xs_report + "parm")
             {
-                facet.ReplaceWith(new XText(String.Format(facet.Attribute("format")?.Value ?? "{0}", context.RootScope.Arguments[facet.Value])));
+                facet.ReplaceWith(new XText(String.Format(facet.Attribute("format")?.Value ?? "{0}", context.RootScope.Arguments.ContainsKey(facet.Value) ? context.RootScope.Arguments[facet.Value] : null)));
             }
             else if (facet.Name == xs_report + "expr")
             {

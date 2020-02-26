@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2018 Mohawk College of Applied Arts and Technology
+ * Copyright 2015-2019 Mohawk College of Applied Arts and Technology
  * 
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you 
@@ -14,8 +14,8 @@
  * License for the specific language governing permissions and limitations under 
  * the License.
  * 
- * User: fyfej
- * Date: 2017-9-1
+ * User: justi
+ * Date: 2018-7-7
  */
 using System;
 using System.Collections.Generic;
@@ -130,6 +130,36 @@ namespace OpenIZ.Mobile.Core.Xamarin.Services.ServiceHandlers
             return this.GetEntity<ManufacturedMaterial>();
         }
 
+        /// <summary>
+        /// Gets the entity relationship
+        /// </summary>
+        [RestOperation(Method = "GET", UriPath = "/EntityRelationship", FaultProvider = nameof(ImsiFault))]
+        [Demand(PolicyIdentifiers.ReadClinicalData)]
+        [return: RestMessage(RestMessageFormat.SimpleJson)]
+        public IdentifiedData GetEntityRelationship()
+        {
+            var erRepositoryService = ApplicationContext.Current.GetService<IRepositoryService<EntityRelationship>>();
+
+            var search = NameValueCollection.ParseQueryString(MiniImsServer.CurrentContext.Request.Url.Query);
+
+            if (search.ContainsKey("_id"))
+            {
+                // Force load from DB
+                var keyid = Guid.Parse(search["_id"].FirstOrDefault());
+                return erRepositoryService.Get(keyid);
+            }
+            else
+            {
+                var qry = QueryExpressionParser.BuildLinqExpression<EntityRelationship>(search);
+
+                var results = erRepositoryService.Find(qry);
+                return new Bundle()
+                {
+                    Item = results.OfType<IdentifiedData>().ToList(),
+                    TotalResults = results.Count()
+                };
+            }
+        }
         /// <summary>
         /// Deletes the act
         /// </summary>

@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2015-2018 Mohawk College of Applied Arts and Technology
+ * Copyright 2015-2019 Mohawk College of Applied Arts and Technology
  * 
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you 
@@ -14,8 +14,8 @@
  * License for the specific language governing permissions and limitations under 
  * the License.
  * 
- * User: fyfej
- * Date: 2017-9-1
+ * User: justi
+ * Date: 2018-7-7
  */
 using OpenIZ.Mobile.Core.Services;
 using System;
@@ -350,10 +350,7 @@ namespace OpenIZ.Mobile.Core.Synchronization
                         // Queue the act of queueing
                         if (result != null)
                         {
-                            if (count == 5000 && perfTimer.ElapsedMilliseconds < 40000 ||
-                                count < 5000 && result.TotalResults > 20000 && perfTimer.ElapsedMilliseconds < 40000)
-                                count = 5000;
-                            else if (count == 2500 && perfTimer.ElapsedMilliseconds < 30000 ||
+                            if (count == 2500 && perfTimer.ElapsedMilliseconds < 30000 ||
                                 count < 2500 && result.TotalResults > 10000 && perfTimer.ElapsedMilliseconds < 30000)
                                 count = 2500;
                             else if (count == 1000 && perfTimer.ElapsedMilliseconds < 20000 ||

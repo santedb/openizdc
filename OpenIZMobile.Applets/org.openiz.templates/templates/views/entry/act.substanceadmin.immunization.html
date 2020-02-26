@@ -36,11 +36,12 @@
                     <label>
                         {{ 'locale.encounters.immunizations.lot' | i18n }}
                     </label>
-                    <select ng-init="act.targetModel.participation.Consumable = toArray(act.targetModel.participation.Consumable) ; act.targetModel.participation.Consumable[0].player = act.targetModel.participation.Consumable[0].player || $root.session.prefs['default.lot.' + act.targetModel.participation.Product.player]"
+                    <select ng-init="act.targetModel.participation.Consumable = toArray(act.targetModel.participation.Consumable) ; act.targetModel.participation.Consumable[0].player = act.targetModel.participation.Consumable[0].player || getSessionLot(act.targetModel.participation.Product.player, act.targetModel.participation.Consumable[0])"
                             ng-class="{'input-error':act._enabled &amp;&amp; (editEncounterForm['consumable_' + act.targetModel.id].$touched||editEncounterForm.$submitted) &amp;&amp; editEncounterForm['consumable_' + act.targetModel.id].$invalid}"
                             ng-if="act.targetModel.participation.Product.player"
                             ng-required="act._enabled"
                             ng-disabled="!act._enabled"
+                            id="lot_{{act.targetModel.id}}"
                             name="consumable_{{act.targetModel.id}}"
                             class="form-control"
                             ng-model="act.targetModel.participation.Consumable[0].player"
@@ -121,12 +122,13 @@
                         <label>
                             {{ (product.targetModel.name.OfficialRecord || product.targetModel.name.Assigned) | oizEntityName }} {{ 'locale.encounters.immunizations.lot' | i18n }}
                         </label>
-                        <select ng-init="act.targetModel.participation.Consumable[$index + 1].player = $root.session.prefs['default.lot.' + product.target];"
+                        <select ng-init="act.targetModel.participation.Consumable[$index + 1] = {}; getSessionLot(product.target, act.targetModel.participation.Consumable[$index + 1])"
                                 ng-class="{'input-error':act._enabled &amp;&amp; (editEncounterForm['consumable_' + product.target].$touched||editEncounterForm.$submitted) &amp;&amp; editEncounterForm['consumable_' + product.target].$invalid}"
                                 ng-if="act.targetModel.participation.Product.player"
                                 ng-required="act._enabled"
                                 ng-disabled="!act._enabled"
                                 name="consumable_{{product.target}}"
+                                id="lot_{{product.id}}"
                                 class="form-control"
                                 ng-model="act.targetModel.participation.Consumable[$index + 1].player"
                                 oiz-databind="ManufacturedMaterial"

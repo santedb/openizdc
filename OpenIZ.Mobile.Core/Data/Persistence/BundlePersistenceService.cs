@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2015-2018 Mohawk College of Applied Arts and Technology
+ * Copyright 2015-2019 Mohawk College of Applied Arts and Technology
  * 
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you 
@@ -14,8 +14,8 @@
  * License for the specific language governing permissions and limitations under 
  * the License.
  * 
- * User: fyfej
- * Date: 2017-9-1
+ * User: justi
+ * Date: 2018-7-7
  */
 using OpenIZ.Core.Model.Collection;
 using OpenIZ.Mobile.Core.Data.Model.DataType;
@@ -133,7 +133,8 @@ namespace OpenIZ.Mobile.Core.Data.Persistence
                                 int i = 0;
                                 foreach (var tbl in columnMapping)
                                 {
-                                    memConnection.Execute($"INSERT OR REPLACE INTO file_db.{tbl.TableName} SELECT * FROM {tbl.TableName}");
+                                    var colNames = String.Join(",", tbl.Columns.Select(o => o.Name).ToArray());
+                                    memConnection.Execute($"INSERT OR REPLACE INTO file_db.{tbl.TableName} ({colNames}) SELECT {colNames} FROM {tbl.TableName}");
                                     ApplicationContext.Current.SetProgress(Strings.locale_committing, (float)i++ / columnMapping.Count);
 
                                 }

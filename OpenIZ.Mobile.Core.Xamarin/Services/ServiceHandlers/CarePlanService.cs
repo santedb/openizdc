@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2018 Mohawk College of Applied Arts and Technology
+ * Copyright 2015-2019 Mohawk College of Applied Arts and Technology
  * 
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you 
@@ -14,8 +14,8 @@
  * License for the specific language governing permissions and limitations under 
  * the License.
  * 
- * User: fyfej
- * Date: 2017-9-1
+ * User: justi
+ * Date: 2019-5-24
  */
 using System;
 using OpenIZ.Mobile.Core.Xamarin.Services.Attributes;
@@ -128,6 +128,7 @@ namespace OpenIZ.Mobile.Core.Xamarin.Services.ServiceHandlers
                     if (!itm.Participations.Any(o => o.ParticipationRoleKey == ActParticipationKey.Location || o.ParticipationRole?.Mnemonic == "Location"))
                         itm.Participations.Add(new ActParticipation(ActParticipationKey.Location, sdlKey));
 
+            //var originalPlan = plan.ToArray();
             // Instructions?
             if (search.Count > 0)
             {
@@ -135,9 +136,9 @@ namespace OpenIZ.Mobile.Core.Xamarin.Services.ServiceHandlers
                 plan.RemoveAll(o => !pred(o));
             }
 
-            return new Bundle() { Item = plan.OfType<IdentifiedData>().ToList() };
+            return new Bundle() { Item = plan.OfType<IdentifiedData>().ToList(), Count = plan.Count() };
             //return plan;
-        }
+        } 
 
         /// <summary>
         /// Care plan fault provider

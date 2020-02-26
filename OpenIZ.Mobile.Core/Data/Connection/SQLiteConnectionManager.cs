@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2015-2018 Mohawk College of Applied Arts and Technology
+ * Copyright 2015-2019 Mohawk College of Applied Arts and Technology
  * 
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you 
@@ -14,8 +14,8 @@
  * License for the specific language governing permissions and limitations under 
  * the License.
  * 
- * User: fyfej
- * Date: 2017-9-1
+ * User: justi
+ * Date: 2018-7-7
  */
 using OpenIZ.Mobile.Core.Diagnostics;
 using OpenIZ.Mobile.Core.Resources;
@@ -295,7 +295,7 @@ namespace OpenIZ.Mobile.Core.Data.Connection
                     if (!this.m_writeConnections.TryGetValue(dataSource, out writeConnection)) // Writeable connection can only have one in the pool so if it isn't there make sure it isn't in the current 
                     {
                         writeConnection = new WriteableSQLiteConnection(platform, dataSource, SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.FullMutex | SQLiteOpenFlags.Create) { Persistent = true };
-                        writeConnection.Execute("PRAGMA synchronous = 1");
+                        writeConnection.Execute("PRAGMA synchronous = 0");
                         //writeConnection.Execute("PRAGMA automatic_index = true");
                         //writeConnection.Execute("PRAGMA journal_mode = WAL");
                         this.m_writeConnections.Add(dataSource, writeConnection);

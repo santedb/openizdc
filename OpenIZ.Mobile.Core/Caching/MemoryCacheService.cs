@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2015-2018 Mohawk College of Applied Arts and Technology
+ * Copyright 2015-2019 Mohawk College of Applied Arts and Technology
  * 
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you 
@@ -14,8 +14,8 @@
  * License for the specific language governing permissions and limitations under 
  * the License.
  * 
- * User: fyfej
- * Date: 2017-9-1
+ * User: justi
+ * Date: 2018-7-7
  */
 using OpenIZ.Core.Model;
 using OpenIZ.Core.Model.Acts;
@@ -126,9 +126,9 @@ namespace OpenIZ.Mobile.Core.Caching
                         ApplicationContext.Current.GetService<IDataPersistenceService<Place>>().Get(Guid.Parse(i));
 
                      // Seed cache
-                     this.m_tracer.TraceInfo("Loading materials dictionary...");
-					 ApplicationContext.Current.GetService<IDataPersistenceService<Material>>().Query(q => q.StatusConceptKey == StatusKeys.Active);
-					 ApplicationContext.Current.GetService<IDataPersistenceService<ManufacturedMaterial>>().Query(q => q.StatusConceptKey == StatusKeys.Active);
+      //               this.m_tracer.TraceInfo("Loading materials dictionary...");
+					 //ApplicationContext.Current.GetService<IDataPersistenceService<Material>>().Query(q => q.StatusConceptKey == StatusKeys.Active);
+					 //ApplicationContext.Current.GetService<IDataPersistenceService<ManufacturedMaterial>>().Query(q => q.StatusConceptKey == StatusKeys.Active);
 
 					 // handles when a item is being mapped
 					 if (this.m_mappingHandler == null)

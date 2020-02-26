@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2015-2018 Mohawk College of Applied Arts and Technology
+ * Copyright 2015-2019 Mohawk College of Applied Arts and Technology
  * 
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you 
@@ -14,8 +14,8 @@
  * License for the specific language governing permissions and limitations under 
  * the License.
  * 
- * User: fyfej
- * Date: 2017-9-1
+ * User: justi
+ * Date: 2018-7-7
  */
 using OpenIZ.Core.Diagnostics;
 using OpenIZ.Core.Exceptions;
@@ -177,7 +177,7 @@ namespace OpenIZ.Mobile.Core.Interop.IMSI
                 client.Client.Credentials = this.GetCredentials(client.Client);
                 if (client.Client.Credentials == null) return null;
                 if (options?.Timeout.HasValue == true)
-                    client.Client.Description.Endpoint[0].Timeout = options.Timeout.Value;
+                    client.Client.Description.Endpoint[0].Timeout = options.Timeout.Value * 2;
 
                 this.m_tracer.TraceVerbose("Performing IMSI query ({0}):{1}", typeof(TModel).FullName, predicate);
 

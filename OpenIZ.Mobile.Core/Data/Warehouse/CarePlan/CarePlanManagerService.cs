@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2015-2018 Mohawk College of Applied Arts and Technology
+ * Copyright 2015-2019 Mohawk College of Applied Arts and Technology
  * 
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you 
@@ -14,8 +14,8 @@
  * License for the specific language governing permissions and limitations under 
  * the License.
  * 
- * User: fyfej
- * Date: 2017-9-1
+ * User: justi
+ * Date: 2018-7-7
  */
 using OpenIZ.Core.Data.Warehouse;
 using OpenIZ.Core.Model;
@@ -185,7 +185,7 @@ namespace OpenIZ.Mobile.Core.Data.Warehouse
                     var lastRefresh = DateTime.Parse(ApplicationContext.Current.Configuration.GetAppSetting("openiz.mobile.core.protocol.plan.lastRun") ?? "0001-01-01");
 
                     // Should we ?
-                    var patientSync = SynchronizationLog.Current.GetAll().FirstOrDefault(o => o.ResourceType == "Person");
+                    var patientSync = SynchronizationLog.Current.GetAll().FirstOrDefault(o => o.ResourceType == "Entity");
 
                     this.RefreshCarePlan(false);
                     remoteSyncService.PullCompleted += (o, e) => { if (!remoteSyncService.IsSynchronizing) this.m_resetEvent.Set(); };
@@ -257,7 +257,7 @@ namespace OpenIZ.Mobile.Core.Data.Warehouse
 
                             ApplicationContext.Current.SetProgress(String.Format(Strings.locale_calculatingCarePlan, this.m_actCarePlanPromise.Count), (promiseCount - this.m_actCarePlanPromise.Count) / (float)promiseCount);
                             IdentifiedData qitm = null;
-                            qitm = this.m_actCarePlanPromise.First();
+                            qitm = this.m_actCarePlanPromise.FirstOrDefault();
                             if (qitm is Patient)
                             {
                                 Patient[] patients = null;
@@ -330,7 +330,7 @@ namespace OpenIZ.Mobile.Core.Data.Warehouse
             var lastRefresh = DateTime.Parse(ApplicationContext.Current.Configuration.GetAppSetting("openiz.mobile.core.protocol.plan.lastRun") ?? "0001-01-01");
 
             // Should we ?
-            var patientSync = SynchronizationLog.Current.GetAll().FirstOrDefault(o => o.ResourceType == "Person");
+            var patientSync = SynchronizationLog.Current.GetAll().FirstOrDefault(o => o.ResourceType == "Entity");
             var inboundQueueCount = SynchronizationQueue.Inbound.Count();
             if (patientSync != null &&
                 inboundQueueCount == 0 &&

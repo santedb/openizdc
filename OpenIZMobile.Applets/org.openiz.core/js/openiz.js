@@ -334,11 +334,12 @@ var OpenIZ = OpenIZ || {
                     fulfills = new OpenIZModel.ControlAct(act);
                     break;
                 default:
+                    fulfills = new OpenIZModel.Act(act);
                     break;
             }
 
             // Re-assign the identifier
-            fulfills.tag = {};
+            fulfills.tag = fulfills.tag || {};
             if (act.stopTime < new Date())
                 fulfills.tag.backEntry = true;
             
@@ -1333,20 +1334,20 @@ var OpenIZ = OpenIZ || {
         simpleGet: function (url, controlData, useRaw) {
             controlData.onException = controlData.onException || OpenIZ.Util.logException;
             if (!useRaw)
-                $.getJSON(url, controlData.query, function (data) {
+                $.getJSON(url, controlData.query, function (data, status, jqr) {
 
                     try {
                         if (data != null && data.error !== undefined)
                             controlData.onException(new OpenIZModel.Exception(data.type, data.error, null, null), controlData.state
                             );
                         else if (data != null) {
-                            controlData.continueWith(data, controlData.state);
+                            controlData.continueWith(data, controlData.state, jqr);
                         }
                         else
                             controlData.onException(new OpenIZModel.Exception("Exception", "err_general",
                                 data,
                                    null
-                            ), controlData.state);
+                            ), controlData.state, jqr);
 
                     }
                     catch (e) {
@@ -2449,7 +2450,7 @@ var OpenIZ = OpenIZ || {
         showWait: function (controlItem) {
             OpenIZ.App._originalText[controlItem] = $(controlItem).html();
             $(controlItem).attr('disabled', 'disabled');
-            $(controlItem).html("<img src='/org.openiz.core/img/ajax-loader.gif' class='spinloader'> " + OpenIZ.Localization.getString("locale.dialog.wait.text"));
+            $(controlItem).html("<i class='fa fa-circle-o-notch fa-spin'></i> " + OpenIZ.Localization.getString("locale.dialog.wait.text"));
         },
         /**
          * @summary Returns whether the internet is available

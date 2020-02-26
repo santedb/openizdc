@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2015-2018 Mohawk College of Applied Arts and Technology
+ * Copyright 2015-2019 Mohawk College of Applied Arts and Technology
  * 
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you 
@@ -14,14 +14,17 @@
  * License for the specific language governing permissions and limitations under 
  * the License.
  * 
- * User: fyfej
- * Date: 2017-9-1
+ * User: justi
+ * Date: 2018-7-7
  */
 using OpenIZ.Core.Alert.Alerting;
 using OpenIZ.Core.Model;
+using OpenIZ.Core.Model.Acts;
 using OpenIZ.Core.Model.Collection;
+using OpenIZ.Core.Model.Entities;
 using OpenIZ.Core.Model.Interfaces;
 using OpenIZ.Core.Model.Patch;
+using OpenIZ.Core.Model.Roles;
 using OpenIZ.Core.Services;
 using OpenIZ.Mobile.Core.Alerting;
 using OpenIZ.Mobile.Core.Configuration;
@@ -368,7 +371,6 @@ namespace OpenIZ.Mobile.Core.Synchronization
                     // Exhaust the outbound queue
                     var integrationService = OpenIZ.Mobile.Core.ApplicationContext.Current.GetService<IClinicalIntegrationService>();
                     var syncItm = SynchronizationQueue.Outbound.PeekRaw();
-                    var dpe = SynchronizationQueue.Outbound.DeserializeObject(syncItm);
 
                     // TODO: Sleep thread here
                     if (!integrationService.IsAvailable())
@@ -379,12 +381,31 @@ namespace OpenIZ.Mobile.Core.Synchronization
                     }
 
                     // try to send
+                    IdentifiedData dpe = null;
                     try
                     {
+                        dpe = SynchronizationQueue.Outbound.DeserializeObject(syncItm);
+
                         // Reconstitute bundle
                         var bundle = dpe as Bundle;
-                        bundle?.Reconstitute();
-                        dpe = bundle?.Entry ?? dpe;
+                        if (bundle != null && syncItm.IsRetry)
+                        {
+                            this.m_tracer.TraceInfo("RETRY: Will try with all available data");
+                            // Try to grab all references in the bundle
+                            foreach (var itm in bundle.Item.OfType<Act>().ToList())
+                            {
+                                foreach(var ptcpt in itm.Participations.ToList())
+                                    if (!bundle.Item.Any(i => i.Key == ptcpt.PlayerEntityKey))
+                                        bundle.Item.Add(ptcpt.LoadProperty<Entity>(nameof(ActParticipation.PlayerEntity)));
+                            }
+                            foreach(var itm in bundle.Item.OfType<Patient>().ToList())
+                            {
+                                foreach(var rel in itm.Relationships.ToList())
+                                    if(!bundle.Item.Any(i=>i.Key == rel.TargetEntityKey))
+                                        bundle.Item.Add(rel.LoadProperty<Entity>(nameof(EntityRelationship.TargetEntity)));
+
+                            }
+                        }
 
                         // Send the object to the remote host
                         switch (syncItm.Operation)
@@ -585,6 +606,42 @@ namespace OpenIZ.Mobile.Core.Synchronization
                 ApplicationContext.Current.GetService<IThreadPoolService>().QueueNonPooledWorkItem(startup, null);
             };
 
+            // Does the outbound queue have data?
+            int dlc = SynchronizationQueue.DeadLetter.Count();
+            if (dlc > 0 &&
+                ApplicationContext.Current.Confirm(Strings.locale_retry))
+            {
+                try
+                {
+                    int i = 0;
+                    while (SynchronizationQueue.DeadLetter.Count() > 0)
+                    {
+                        ApplicationContext.Current.SetProgress(Strings.locale_requeueing, ((float)i++) / (float)dlc);
+
+                        var itm = SynchronizationQueue.DeadLetter.PeekRaw();
+                        switch (itm.OriginalQueue)
+                        {
+                            case "inbound":
+                            case "inbound_queue":
+                                SynchronizationQueue.Inbound.EnqueueRaw(new InboundQueueEntry(itm));
+                                break;
+                            case "outbound":
+                            case "outbound_queue":
+                                SynchronizationQueue.Outbound.EnqueueRaw(new OutboundQueueEntry(itm));
+                                break;
+                            case "admin":
+                            case "admin_queue":
+                                SynchronizationQueue.Admin.EnqueueRaw(new OutboundAdminQueueEntry(itm));
+                                break;
+                        }
+                        SynchronizationQueue.DeadLetter.Delete(itm.Id);
+                    }
+                }
+                catch (Exception e)
+                {
+                    this.m_tracer.TraceInfo("Could not re-queue items: {0}", e.Message);
+                }
+            }
 
             this.Started?.Invoke(this, EventArgs.Empty);
 
