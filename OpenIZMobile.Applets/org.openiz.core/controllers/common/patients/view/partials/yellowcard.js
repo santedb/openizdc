@@ -98,8 +98,11 @@ angular.module('layout').controller('YellowCardController', ['$scope', '$statePa
                     var participation = newEncounters[ptcpt];
                     if (participation.$type != 'PatientEncounter')
                         acts.push(participation);
-                    else if (participation.relationship && participation.relationship.HasComponent)
+                    else if (participation.relationship && participation.relationship.HasComponent) {
+                        if (!Array.isArray(participation.relationship.HasComponent))
+                            participation.relationship.HasComponent = [participation.relationship.HasComponent];
                         acts = $.map(participation.relationship.HasComponent, function (e) { return e.targetModel; });
+                    }
                     else
                         acts.push(participation);
 

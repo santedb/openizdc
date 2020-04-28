@@ -24,44 +24,71 @@
 /// <reference path="~/lib/jquery.min.js"/>
 /// <reference path="~/lib/bootstrap.min.js"/>
 
-angular.module('layout').controller('LoginPartController', ['$scope', '$window', '$stateParams', '$rootScope', '$templateCache', '$state', function ($scope, $window, $stateParams, $rootScope, $templateCache, $state) {
-        // Get the current scope that we're in
+angular.module('layout').controller('LoginPartController', ['$scope', '$window', '$stateParams', '$rootScope', '$templateCache', '$state', '$timeout', function ($scope, $window, $stateParams, $rootScope, $templateCache, $state, $timeout) {
+    // Get the current scope that we're in
 
-        $scope.showPasswordReset = $scope.showPasswordReset || function () {
-            $scope.loginForm.$setUntouched();
-            $('#passwordResetDialog').modal({
-                backdrop: 'static',
-                keyboard: false
-            });
-        };
+    $scope.showPasswordReset = $scope.showPasswordReset || function () {
+        $scope.loginForm.$setUntouched();
+        $('#passwordResetDialog').modal({
+            backdrop: 'static',
+            keyboard: false
+        });
+    };
 
-        $scope.login = $scope.login || function (form, username, password) {
+    var getSystemAlerts = function () {
+        OpenIZ.App.getAlertsAsync({
+            query: { flags: 8 },
+            continueWith: function (alerts) {
+                try {
+                    $rootScope.systemAlerts = alerts;
 
-            if (!form.$valid)
-            {
-                console.log(OpenIZ.Localization.getString("locale.security.login.invalid"));
-                return;
+                    if (alerts.length > 0)
+                        for (var i in alerts) {
+                            alerts[i].dismiss = function () {
+                                OpenIZ.App.saveAlertAsync({ data: { id: this.id, flags: 4, subject: this.subject, body: this.body, from: this.from, to: this.to } });
+                                $rootScope.systemAlerts.splice(alerts.indexOf(this), 1);
+                            };
+                        }
+                    else if(getSystemAlerts){
+                        $timeout(getSystemAlerts, 1000);
+                        getSystemAlerts = null;
+                    }
+                    $rootScope.$apply();
+                }
+                catch (e) {
+                    console.error(e);
+                }
             }
-            OpenIZ.App.showWait('#loginButton');
-            OpenIZ.Authentication.loginAsync({
-                userName: username,
-                password: password,
-                continueWith: function (session) {
-                    if (session == null) {
-                        alert(OpenIZ.Localization.getString("err_oauth2_invalid_grant"));
-                    }
-                    else {
-                        $rootScope.initSessionVars();
-                        $templateCache.removeAll();
-                        $state.reload();
-                        //$window.location.reload();
-                        //$state.go($stateParams.redirectUrl, $stateParams.params)
+        });
+    }
+    getSystemAlerts();
 
-                    }
-                },
-                onException: function (ex) {
-                    //OpenIZ.App.hideWait('#loginButton');
-                    OpenIZ.App.hideWait('#loginButton');
+    $scope.login = $scope.login || function (form, username, password) {
+
+        if (!form.$valid) {
+            console.log(OpenIZ.Localization.getString("locale.security.login.invalid"));
+            return;
+        }
+        OpenIZ.App.showWait('#loginButton');
+        OpenIZ.Authentication.loginAsync({
+            userName: username,
+            password: password,
+            continueWith: function (session) {
+                if (session == null) {
+                    alert(OpenIZ.Localization.getString("err_oauth2_invalid_grant"));
+                }
+                else {
+                    $rootScope.initSessionVars();
+                    $templateCache.removeAll();
+                    $state.reload();
+                    //$window.location.reload();
+                    //$state.go($stateParams.redirectUrl, $stateParams.params)
+
+                }
+            },
+            onException: function (ex) {
+                //OpenIZ.App.hideWait('#loginButton');
+                OpenIZ.App.hideWait('#loginButton');
 
                 if (typeof (ex) == "string")
                     console.log(ex);
@@ -71,11 +98,11 @@ angular.module('layout').controller('LoginPartController', ['$scope', '$window',
                     alert(OpenIZ.Localization.getString(ex.message));
                 else
                     console.log(ex);
-                },
-                finally: function () {
-                }
+            },
+            finally: function () {
+            }
         });
     }; // scope.login
 
-        
+
 }]);
