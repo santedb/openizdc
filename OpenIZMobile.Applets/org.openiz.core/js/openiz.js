@@ -3028,6 +3028,34 @@ var OpenIZ = OpenIZ || {
      */
     Place: {
         /**
+         * @summary Update the schedule for the place
+         * @method
+         * @memberof OpenIZ.Place
+         * @param {Object} controlData An object containing search, offset, count and callback data
+         * @param {OpenIZ~continueWith} controlData.continueWith The callback to call when the operation is completed successfully
+         * @param {OpenIZ~onException} controlData.onException The callback to call when the operation encounters an exception
+         * @param {OpenIZ~finally} controlData.finally The callback of a function to call whenever the operation completes successfully or not
+         * @param {object} controlData.data The data to set as the schedule
+         * @param {object} controlData.id The identifier of the place to attach schedule to
+         * @param {int} controlData.query._count The limit of results to return from the ims
+         * @param {int} controlData.query._offset The offset of the search result window
+         * @param {uuid} controlData.query._id The identifier of the object to retrieve from the IMS (performs a get rather than a query)
+         * @see OpenIZModel.Place
+         */
+        updateSchedule: function (controlData) {
+            OpenIZ.Ims.put({
+                id: controlData.id,
+                versionId: null,
+                resource: "PlaceSchedule",
+                continueWith: controlData.continueWith,
+                onException: controlData.onException,
+                finally: controlData.finally,
+                data: controlData.data,
+                state: controlData.state,
+                synchronous: controlData.synchronous
+            });
+        },
+        /**
          * @summary Perform an asynchronous search on the place resource
          * @method
          * @memberof OpenIZ.Place

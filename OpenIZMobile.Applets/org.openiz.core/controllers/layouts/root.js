@@ -24,8 +24,8 @@
 /// <reference path="~/lib/angular.min.js"/>
 var layoutApp = angular.module('layout', ['openiz', 'ngSanitize', 'ui.router', 'angular.filter', 'oc.lazyLoad'])
     .config(['$compileProvider', '$stateProvider', '$urlRouterProvider', '$httpProvider', function ($compileProvider, $stateProvider, $urlRouterProvider, $httpProvider) {
-        $compileProvider.aHrefSanitizationWhitelist(/^\s*(http|tel):/);
-        $compileProvider.imgSrcSanitizationWhitelist(/^\s*(http|tel):/);
+        $compileProvider.aHrefSanitizationWhitelist(/^\s*(http|tel|https):/);
+        $compileProvider.imgSrcSanitizationWhitelist(/^\s*(http|tel|https):/);
 
         var hasStartup = false;
         OpenIZ.UserInterface.states.forEach(function (state) {
@@ -48,6 +48,43 @@ var layoutApp = angular.module('layout', ['openiz', 'ngSanitize', 'ui.router', '
 
         angular.element(document).ready(init);
 
+        // Get alerts
+        function getSystemAlerts() {
+            OpenIZ.App.getAlertsAsync({
+                query: {
+                    flags: "8"
+                },
+                continueWith: function (d) {
+
+                    if (d.length == 0)
+                        setTimeout(getSystemAlerts, 1000);
+
+                    var showdownConv = new showdown.Converter();
+                    $rootScope.systemAlerts = [];
+                    for (var i in d) {
+                        d[i].body = d[i].body.replace("<pre>", "").replace("</pre>", "");
+                        d[i].body = showdownConv.makeHtml(d[i].body);
+                        d[i].dismiss = function () {
+                            d[i].flags = 0;
+                            OpenIZ.App.saveAlertAsync({
+                                data: d[i],
+                                continueWith: getSystemAlerts
+                            });
+                        };
+                        $rootScope.systemAlerts.push(d[i]);
+                    }
+
+                    try {
+                        $rootScope.$apply();
+                    }
+                    catch (e) {
+                        console.info("Error on update rootscope" + e);
+                    }
+                }
+            });
+        }
+        getSystemAlerts();
+
         function init() {
             $rootScope.isLoading = true;
             $rootScope.extendToast = null;
@@ -57,6 +94,8 @@ var layoutApp = angular.module('layout', ['openiz', 'ngSanitize', 'ui.router', '
             // Once we fix the panels and tabs in BS this can be removed
             if (window.location.hash == "")
                 window.location.hash = "#/";
+
+
 
             OpenIZ.Configuration.getConfigurationAsync({
                 continueWith: function (config) {

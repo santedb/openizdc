@@ -17,7 +17,6 @@
  * User: justi
  * Date: 2018-7-7
  */
-using Jint.Parser.Ast;
 using OpenIZ.Core.Data.QueryBuilder;
 using OpenIZ.Core.Diagnostics;
 using OpenIZ.Core.Model;

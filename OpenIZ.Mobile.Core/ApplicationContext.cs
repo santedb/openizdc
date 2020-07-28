@@ -356,6 +356,11 @@ namespace OpenIZ.Mobile.Core
         /// OpenIZ databases. This should be a consistent key (i.e. generate from machine, user SID, etc.).
         /// </summary>
         public abstract byte[] GetCurrentContextSecurityKey();
+
+        /// <summary>
+        /// Get all types
+        /// </summary>
+        public abstract IEnumerable<Type> GetAllTypes();
     }
 }
 

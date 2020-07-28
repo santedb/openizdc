@@ -38,6 +38,7 @@ angular.module('layout').controller('LayoutController', ['$scope', '$interval', 
             $scope.menuItems = null;
     });
 
+
     // Session was expired on a background thread
     OpenIZ.Authentication.$sessionExpiredHandler = function () {
         if ($rootScope.session) {
@@ -80,6 +81,8 @@ angular.module('layout').controller('LayoutController', ['$scope', '$interval', 
                 flags: "!2"
             },
             continueWith: function (d) {
+
+                
                 if ($scope.messages == null || d.length != $scope.messages.length) {
                     var nmsg = d.length - ($scope.messages == null ? 0 : $scope.messages.length);
 
@@ -149,6 +152,7 @@ angular.module('layout').controller('LayoutController', ['$scope', '$interval', 
             });
     };
 
+    $scope.checkMessages();
     setInterval($scope.checkMessages, 10000);
     //$scope.checkMessages();
     /**

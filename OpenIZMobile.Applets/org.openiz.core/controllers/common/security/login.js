@@ -25,8 +25,9 @@
 /// <reference path="~/lib/bootstrap.min.js"/>
 
 angular.module('layout').controller('LoginPartController', ['$scope', '$window', '$stateParams', '$rootScope', '$templateCache', '$state', function ($scope, $window, $stateParams, $rootScope, $templateCache, $state) {
-        // Get the current scope that we're in
 
+    
+        // Get the current scope that we're in
         $scope.showPasswordReset = $scope.showPasswordReset || function () {
             $scope.loginForm.$setUntouched();
             $('#passwordResetDialog').modal({

@@ -58,7 +58,10 @@ angular.module('layout').controller('ViewAlertController', ['$scope', '$statePar
                 continueWith: function (data)
                 {
                     $scope.alert = data[0];
-                    $scope.alert.body = $scope.alert.body.replace("\n", "<br/>");
+                    // HACK: remove PRE tags
+                    $scope.alert.body = $scope.alert.body.replace("<pre>", "").replace("</pre>", "");
+                    var converter = new showdown.Converter();
+                    $scope.alert.body = converter.makeHtml($scope.alert.body);
                     $scope.$apply();
                 }
             });
@@ -93,7 +96,6 @@ angular.module('layout').controller('ViewAlertController', ['$scope', '$statePar
     function updateAlert()
     {
         $scope.alert.flags = 2;
-
         $scope.alert.creationTime = $scope.alert.time;
 
         OpenIZ.App.saveAlertAsync({

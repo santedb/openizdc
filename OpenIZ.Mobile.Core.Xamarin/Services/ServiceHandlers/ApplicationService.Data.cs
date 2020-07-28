@@ -41,11 +41,13 @@ using OpenIZ.Core.Services;
 using OpenIZ.Mobile.Core.Xamarin.Data;
 using OpenIZ.Core.Model.Acts;
 using OpenIZ.Core.Model.Roles;
-using Jint.Parser.Ast;
 using OpenIZ.Core.Model.Collection;
 using OpenIZ.Mobile.Core.Interop.IMSI;
 using OpenIZ.Core.Model.Entities;
 using System.Threading;
+using OpenIZ.Core.Model;
+using OpenIZ.Core.Model.DataTypes;
+using OpenIZ.Core.Model.Constants;
 
 namespace OpenIZ.Mobile.Core.Xamarin.Services.ServiceHandlers
 {
@@ -62,21 +64,31 @@ namespace OpenIZ.Mobile.Core.Xamarin.Services.ServiceHandlers
         /// Force re-queue of all data to server
         /// </summary>
         [RestOperation(FaultProvider = nameof(AdminFaultProvider), Method = "PUT", UriPath = "/data/sync")]
-        [Demand(PolicyIdentifiers.AccessClientAdministrativeFunction)]
+        [Demand(PolicyIdentifiers.Login)]
         public void ForceRequeue()
         {
 
-            // What does this do... oh my ... it is complex
-            //
-            // 1. We scan the entire database for all Patients that were created in the specified date ranges
-            // 2. We scan the entire database for all Acts that were created in the specified date ranges
-            // 3. We take all of those and we put them in the outbox in bundles to be shipped to the server at a later time
             var search = NameValueCollection.ParseQueryString(MiniImsServer.CurrentContext.Request.Url.Query);
 
             // Hit the act repository
             var patientDataRepository = ApplicationContext.Current.GetService<IRepositoryService<Patient>>() as IPersistableQueryRepositoryService;
             var actDataRepository = ApplicationContext.Current.GetService<IRepositoryService<Act>>() as IPersistableQueryRepositoryService;
             var imsiIntegration = ApplicationContext.Current.GetService<ImsiIntegrationService>();
+
+            // First clear out our queues and force a resync
+            var qmService = ApplicationContext.Current.GetService<QueueManagerService>();
+            if (qmService.IsBusy || ApplicationContext.Current.GetService<ISynchronizationService>().IsSynchronizing || s_isDownloading)
+                throw new InvalidOperationException(Strings.err_already_syncrhonizing);
+
+            // Synchronize the queues
+            qmService.ExhaustOutboundQueue();
+            qmService.ExhaustAdminQueue();
+            qmService.ExhaustInboundQueue();
+
+            foreach (var queueItem in SynchronizationQueue.DeadLetter.Query(o => o.CreationTime < DateTime.Now.Date, 0, 1000, out int qtr))
+            {
+                SynchronizationQueue.DeadLetter.Delete(queueItem.Id);
+            }
 
             // Get all patients matching
             int ofs = 0, tr = 1;
@@ -85,42 +97,116 @@ namespace OpenIZ.Mobile.Core.Xamarin.Services.ServiceHandlers
             while (ofs < tr)
             {
                 var res = patientDataRepository.Find<Patient>(filter, ofs, 25, out tr, qid);
-                ApplicationContext.Current.SetProgress(Strings.locale_preparingPush, (float)ofs / (float)tr * 0.5f);
-                ofs += 25;
 
-                var serverSearch = new NameValueCollection();
-                serverSearch.Add("id", res.Select(o => o.Key.ToString()).ToList());
-
-                var serverKeys = imsiIntegration.Find<Patient>(serverSearch, 0, 25, new IntegrationQueryOptions()
+                // Prepare bundles 
+                for (int p = 0; p < res.Count(); p++)
                 {
-                    Lean = true,
-                    InfrastructureOptions = NameValueCollection.ParseQueryString("_exclude=participation&_exclude=relationship&_exclude=tag&_exclude=identifier&_exclude=address&_exclude=name")
-                }).Item.Select(o => o.Key);
+                    var patient = res.Skip(p).FirstOrDefault();
+                    ApplicationContext.Current.SetProgress(Strings.locale_preparingPush, ((float)(ofs + p) / (float)tr) * 0.75f);
 
-                SynchronizationQueue.Outbound.Enqueue(Bundle.CreateBundle(res.Where(o => !serverKeys.Contains(o.Key)), tr, ofs), DataOperationType.Update);
+                    // Get all acts for the patient
+                    var aqid = Guid.NewGuid();
+                    var aofs = 0;
+                    Bundle patientBundle = new Bundle();
+                    patient.LoadCollection<EntityRelationship>(nameof(Entity.Relationships));
+                    patient.LoadCollection<EntityIdentifier>(nameof(Entity.Identifiers));
+                    patient.LoadCollection<EntityName>(nameof(Entity.Names));
+                    patient.LoadCollection<EntityAddress>(nameof(Entity.Addresses));
+                    patient.LoadCollection<EntityExtension>(nameof(Entity.Extensions));
+                    patient.LoadCollection<EntityTelecomAddress>(nameof(Entity.Telecoms));
+                    patient.LoadCollection<EntityTag>(nameof(Entity.Tags));
+                    patientBundle.Add(patient);
+                    Bundle.ProcessModel(patient, patientBundle, true);
+
+                    var acts = actDataRepository.Find<Act>(act => act.Participations.Where(r => r.ParticipationRole.Mnemonic == "RecordTarget").Any(r => r.PlayerEntity.Key == patient.Key) && act.ObsoletionTime == null, aofs, 25, out int atr, aqid);
+                    while (aofs < atr)
+                    {
+                        foreach (var a in acts)
+                        {
+                            a.LoadCollection<ActRelationship>(nameof(Act.Relationships));
+                            a.LoadCollection<ActParticipation>(nameof(Act.Participations));
+                            a.LoadCollection<ActTag>(nameof(Act.Tags));
+                            a.LoadCollection<ActExtension>(nameof(Act.Extensions));
+                            a.LoadCollection<ActIdentifier>(nameof(Act.Identifiers));
+                            patientBundle.Add(a);
+                            Bundle.ProcessModel(a, patientBundle, true);
+                        }
+                        aofs += 25;
+                        acts = actDataRepository.Find<Act>(act => act.Participations.Where(r => r.ParticipationRole.Mnemonic == "RecordTarget").Any(r => r.PlayerEntity.Key == patient.Key) && !act.ObsoletionTime.HasValue, aofs, 25, out atr, aqid);
+                    }
+
+                    // Now that the bundle is created, submit it to the server
+                    SynchronizationQueue.Outbound.Enqueue(patientBundle, DataOperationType.Update);
+
+                }
+                ofs += 25;
             }
 
-            // Get all acts matching
-            qid = Guid.NewGuid();
+            // Now submit all acts which don't have a patient in the same timeframe (orders, transfers, adjustments, etc.)
+            search.Add("classConcept", new List<String>()
+            {
+                ActClassKeyStrings.AccountManagement,
+                ActClassKeyStrings.List,
+                ActClassKeyStrings.Supply,
+                ActClassKeyStrings.Transport
+            });
             var actFilter = QueryExpressionParser.BuildLinqExpression<Act>(search);
-            ofs = 0; tr = 1;
+            ofs = 0;
+            tr = 1;
+            qid = Guid.NewGuid();
             while (ofs < tr)
             {
                 var res = actDataRepository.Find<Act>(actFilter, ofs, 25, out tr, qid);
-                ApplicationContext.Current.SetProgress(Strings.locale_preparingPush, (float)ofs / (float)tr * 0.5f + 0.5f);
-                ofs += 25;
 
-                var serverSearch = new NameValueCollection();
-                serverSearch.Add("id", res.Select(o => o.Key.ToString()).ToList());
-
-                var serverKeys = imsiIntegration.Find<Act>(serverSearch, 0, 25, new IntegrationQueryOptions()
+                // Prepare bundles 
+                ApplicationContext.Current.SetProgress(Strings.locale_preparingPush, 0.75f + ((float)(ofs) / (float)tr) * 0.25f);
+                foreach (var a in res)
                 {
-                    Lean = true,
-                    InfrastructureOptions = NameValueCollection.ParseQueryString("_exclude=participation&_exclude=relationship&_exclude=tag&_exclude=identifier")
-                }).Item.Select(o => o.Key);
+                    a.LoadCollection<ActRelationship>(nameof(Act.Relationships));
+                    a.LoadCollection<ActParticipation>(nameof(Act.Participations));
+                    a.LoadCollection<ActTag>(nameof(Act.Tags));
+                    a.LoadCollection<ActExtension>(nameof(Act.Extensions));
+                    a.LoadCollection<ActIdentifier>(nameof(Act.Identifiers));
+                    var bundle = new Bundle();
+                    bundle.Add(a);
+                    Bundle.ProcessModel(a, bundle, true);
+                    SynchronizationQueue.Outbound.Enqueue(bundle, DataOperationType.Update);
 
-                SynchronizationQueue.Outbound.Enqueue(Bundle.CreateBundle(res.Where(o => !serverKeys.Contains(o.Key)), tr, ofs), DataOperationType.Update);
+                }
+
+                ofs += 25;
             }
+
+            // Next we want to re-queue the dead letter objects
+            ofs = 0; tr = 1;
+            while (ofs < tr)
+            {
+                foreach (var queueItem in SynchronizationQueue.DeadLetter.Query(o => o.CreationTime > DateTime.Now.Date, ofs, 100, out tr))
+                {
+                    switch (queueItem.OriginalQueue)
+                    {
+                        case "inbound":
+                        case "inbound_queue":
+                            SynchronizationQueue.Inbound.EnqueueRaw(new InboundQueueEntry(queueItem));
+                            break;
+                        case "outbound":
+                        case "outbound_queue":
+                            SynchronizationQueue.Outbound.EnqueueRaw(new OutboundQueueEntry(queueItem));
+                            break;
+                        case "admin":
+                        case "admin_queue":
+                            SynchronizationQueue.Admin.EnqueueRaw(new OutboundAdminQueueEntry(queueItem));
+                            break;
+                        default:
+                            throw new KeyNotFoundException(queueItem.OriginalQueue);
+                    }
+
+                    SynchronizationQueue.DeadLetter.Delete(queueItem.Id);
+                }
+                ofs += 100;
+            }
+
+            qmService.ExhaustOutboundQueue();
 
         }
 
@@ -229,7 +315,7 @@ namespace OpenIZ.Mobile.Core.Xamarin.Services.ServiceHandlers
 
             ApplicationContext.Current.SaveConfiguration();
         }
-        
+
         /// <summary>
         /// Force a re-synchronization
         /// </summary>

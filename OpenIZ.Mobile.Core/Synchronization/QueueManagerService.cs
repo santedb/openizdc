@@ -388,21 +388,30 @@ namespace OpenIZ.Mobile.Core.Synchronization
 
                         // Reconstitute bundle
                         var bundle = dpe as Bundle;
+                        bundle.Item = bundle.Item.OfType<IdentifiedData>().ToList();
                         if (bundle != null && syncItm.IsRetry)
                         {
                             this.m_tracer.TraceInfo("RETRY: Will try with all available data");
                             // Try to grab all references in the bundle
                             foreach (var itm in bundle.Item.OfType<Act>().ToList())
                             {
-                                foreach(var ptcpt in itm.Participations.ToList())
+                                foreach (var ptcpt in itm.Participations.ToList())
                                     if (!bundle.Item.Any(i => i.Key == ptcpt.PlayerEntityKey))
-                                        bundle.Item.Add(ptcpt.LoadProperty<Entity>(nameof(ActParticipation.PlayerEntity)));
+                                    {
+                                        var loadedItm = ptcpt.LoadProperty<Entity>(nameof(ActParticipation.PlayerEntity));
+                                        if(loadedItm != null)
+                                            bundle.Item.Add(loadedItm);
+                                    }
                             }
                             foreach(var itm in bundle.Item.OfType<Patient>().ToList())
                             {
-                                foreach(var rel in itm.Relationships.ToList())
-                                    if(!bundle.Item.Any(i=>i.Key == rel.TargetEntityKey))
-                                        bundle.Item.Add(rel.LoadProperty<Entity>(nameof(EntityRelationship.TargetEntity)));
+                                foreach (var rel in itm.Relationships.ToList())
+                                    if (!bundle.Item.Any(i => i.Key == rel.TargetEntityKey))
+                                    {
+                                        var loadedItm = rel.LoadProperty<Entity>(nameof(EntityRelationship.TargetEntity));
+                                        if(loadedItm != null)
+                                            bundle.Item.Add(loadedItm);
+                                    }
 
                             }
                         }

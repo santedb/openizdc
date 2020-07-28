@@ -294,6 +294,9 @@
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ItemGroup>
+    <Reference Include="Esprima">
+      <HintPath>..\Solution Items\Esprima.dll</HintPath>
+    </Reference>
     <Reference Include="jint">
       <HintPath>..\Solution Items\jint.dll</HintPath>
     </Reference>

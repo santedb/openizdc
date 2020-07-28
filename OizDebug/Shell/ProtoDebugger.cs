@@ -99,6 +99,25 @@ namespace OizDebug.Shell
             }
 
             /// <summary>
+            /// Get all types
+            /// </summary>
+            public IEnumerable<Type> GetAllTypes()
+            {
+                return AppDomain.CurrentDomain.GetAssemblies()
+                .Where(a => !a.IsDynamic)
+                .SelectMany(o => {
+                    try
+                    {
+                        return o.ExportedTypes;
+                    }
+                    catch
+                    {
+                        return new List<Type>();
+                    }
+                }); // HACK: Mono does not like all assemblies
+            }
+
+            /// <summary>
             /// Get all services
             /// </summary>
             public IEnumerable<object> GetServices()
@@ -113,6 +132,8 @@ namespace OizDebug.Shell
             {
                 ApplicationContext.Current.RemoveServiceProvider(serviceType);
             }
+
+
         }
 
         /// <summary>

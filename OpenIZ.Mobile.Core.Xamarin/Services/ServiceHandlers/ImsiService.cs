@@ -47,6 +47,7 @@ using OpenIZ.Core.Applets.ViewModel.Json;
 using OpenIZ.Core.Model.Security;
 using OpenIZ.Core.Applets.Services;
 using System.Text.RegularExpressions;
+using OpenIZ.Core.Scheduling;
 
 namespace OpenIZ.Mobile.Core.Xamarin.Services.ServiceHandlers
 {
@@ -93,6 +94,44 @@ namespace OpenIZ.Mobile.Core.Xamarin.Services.ServiceHandlers
 
 		    return erRepositoryService.Insert(entityRelationship);
 	    }
+
+        /// <summary>
+		/// Creates the entity relationship.
+		/// </summary>
+		/// <param name="entityRelationship">The entity relationship.</param>
+		/// <returns>Returns the created entity relationship.</returns>
+		[RestOperation(Method = "PUT", UriPath = "/PlaceSchedule", FaultProvider = nameof(ImsiFault))]
+        [Demand(PolicyIdentifiers.WriteClinicalData)]
+        public ClinicServiceScheduleInfo UpdateScheduleInfo([RestMessage(RestMessageFormat.SimpleJson)] ClinicServiceScheduleInfo scheduleInfo)
+        {
+
+            var search = NameValueCollection.ParseQueryString(MiniImsServer.CurrentContext.Request.Url.Query);
+            var integrationService = ApplicationContext.Current.GetService<IClinicalIntegrationService>();
+
+            if (!integrationService.IsAvailable())
+                throw new InvalidOperationException("You must be online to update clinic schedule");
+            else if (search.TryGetValue("_id", out List<string> value))
+            {
+                var place = integrationService.Get<Place>(Guid.Parse(value.First()), null);
+
+                var schedule = place.LoadCollection<PlaceService>(nameof(Place.Services)).FirstOrDefault() ?? new PlaceService()
+                {
+                    SourceEntityKey = place.Key,
+                    ServiceConceptKey = Guid.Parse("f5304ED0-6C9F-411B-B008-A1E1561B7963"),
+                    EffectiveVersionSequenceId = place.VersionSequence
+                };
+
+                schedule.ServiceSchedule = JsonConvert.SerializeObject(scheduleInfo);
+
+                integrationService.Update(place, true);
+                ApplicationContext.Current.GetService<IDataPersistenceService<Place>>().Update(place);
+                return scheduleInfo;
+            }
+            else
+                throw new ArgumentNullException("_id");
+
+           
+        }
 
         /// <summary>
         /// Gets an entity

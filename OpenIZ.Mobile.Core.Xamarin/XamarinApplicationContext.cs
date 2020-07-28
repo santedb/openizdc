@@ -95,9 +95,29 @@ namespace OpenIZ.Mobile.Core.Xamarin
             AuthenticationContext.Current = new AuthenticationContext(principal);
 		}
 
-		#region implemented abstract members of ApplicationContext
+        /// <summary>
+        /// Get all types
+        /// </summary>
+        /// <returns></returns>
+        public override IEnumerable<Type> GetAllTypes()
+        {
+            return AppDomain.CurrentDomain.GetAssemblies()
+                .Where(a => !a.IsDynamic)
+                .SelectMany(o => {
+                    try
+                    {
+                        return o.ExportedTypes;
+                    }
+                    catch
+                    {
+                        return new List<Type>();
+                    }
+                }); // HACK: Mono does not like all assemblies
+        }
 
-	    /// <summary>
+        #region implemented abstract members of ApplicationContext
+
+        /// <summary>
         /// Gets the device information for the currently running device
         /// </summary>
         /// <value>The device.</value>
