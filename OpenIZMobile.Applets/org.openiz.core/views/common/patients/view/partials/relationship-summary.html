@@ -56,6 +56,21 @@
                 <span class="label label-info">{{ contact.useModel | oizConcept }}</span>
             </div>
         </div>
-        
+        <div class="row" ng-if="rel.targetModel.address">
+            <label class="col-sm-4 col-xs-12">
+                {{ 'locale.patient.mother.domicile' | i18n }}
+            </label>
+            <div class="col-sm-6 col-xs-12">
+                {{ rel.targetModel.address | oizEntityAddress }}
+            </div>
+        </div>
+        <div class="row" ng-if="rel.targetModel.relationship.Birthplace.targetModel">
+            <label class="col-sm-4 col-xs-12">
+                {{ 'locale.patient.mother.birthplace' | i18n }}
+            </label>
+            <div class="col-sm-6 col-xs-12">
+                {{ rel.targetModel.relationship.Birthplace.targetModel.name.OfficialRecord | oizEntityName }}
+            </div>
+        </div>
     </div>
 </div>

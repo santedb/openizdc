@@ -228,6 +228,21 @@ angular.module('openiz', [])
             return OpenIZ.Util.renderAddress(modelValue);
         }
     })
+    /**
+     * @method datePrecisionFormat
+     * @memberof Angular
+     * @sumamry Renders the input as an age
+     * @see {OpenIZ.App.DatePrecisionFormats}
+     */
+    .filter('age', function () {
+        return function (date) {
+            var age = moment().diff(date, 'years', false);
+            if (age < 2)
+                return moment().diff(date, 'months', false) + " mon";
+            else
+                return age + " yrs";
+        };
+    })
     /** 
      * @method datePrecisionFormat
      * @memberof Angular

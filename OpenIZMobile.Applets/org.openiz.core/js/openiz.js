@@ -1469,8 +1469,8 @@ var OpenIZ = OpenIZ || {
             if (entity === undefined) return;
 
             var address = entity.component !== undefined ? entity :
-                entity.address !== undefined ? (entity.address.Direct || entity.address.HomeAddress || result.name.$other) :
-                (entity.Direct || entity.HomeAddress || entity.$other);
+                entity.address !== undefined ? (entity.address.Direct || entity.address.HomeAddress || entity.address.PhysicalVisit || entity.address.$other) :
+                (entity.Direct || entity.HomeAddress || entity.PhysicalVisit || entity.$other);
             var retVal = "";
             if (address.component) {
                 if (address.component.AdditionalLocator)
@@ -3244,7 +3244,7 @@ var OpenIZ = OpenIZ || {
         getEntityTemplateAsync: function (controlData) {
             OpenIZ.Ims.get({
                 resource: "Entity/Template",
-                query: { "templateId": controlData.templateId },
+                query: { "templateId": controlData.templateId, "_viewModel":"full" },
                 continueWith: controlData.continueWith,
                 onException: controlData.onException,
                 finally: controlData.finally,

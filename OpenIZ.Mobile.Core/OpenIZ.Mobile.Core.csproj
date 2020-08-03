@@ -60,6 +60,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Configuration\Data\Migrations\CatalogEdmonton4Update.cs" />
+    <Compile Include="Configuration\Data\Migrations\CountrySubscriptionCatalog.cs" />
     <Compile Include="Configuration\Data\Migrations\InitialAuditCatalog.cs" />
     <Compile Include="Configuration\Data\Migrations\SanteDBSubscription_Out.cs" />
     <Compile Include="Configuration\Data\Migrations\SanteDBSubscription.cs" />

@@ -18,14 +18,21 @@
  - Date: 2017-10-30
  -->
 <div xmlns="http://www.w3.org/1999/xhtml" xmlns:oiz="http://openiz.org/applet">
-    <div ng-repeat="(typ, rel) in patient.relationship" ng-if="(rel.targetModel.$type == 'Person' || rel.targetModel.$type == 'Patient') &amp;&amp; typ=='Mother'" 
-         >
+    <div ng-repeat="(typ, rel) in patient.relationship" ng-if="(rel.targetModel.$type == 'Person' || rel.targetModel.$type == 'Patient') &amp;&amp; typ=='Mother'">
         <div class="row">
             <label class="col-sm-4 col-xs-12">
                 {{ 'locale.patient.demographics.givenName' | i18n }}
             </label>
             <div class="col-sm-6 col-xs-12 ng-binding">
                 {{rel.targetModel.name.OfficialRecord | oizEntityName}}
+            </div>
+        </div>
+        <div class="row" ng-if="rel.targetModel.dateOfBirth">
+            <label class="col-sm-4 col-xs-12">
+                {{ 'locale.patient.mother.dateOfBirth' | i18n }}
+            </label>
+            <div class="col-sm-6 col-xs-12 ng-binding">
+                {{rel.targetModel.dateOfBirth | datePrecisionFormat:rel.targetModel.dateOfBirthPrecision }} ({{ rel.targetModel.dateOfBirth | age }})
             </div>
         </div>
         <div class="row" ng-if="rel.targetModel.identifier &amp;&amp; aut &amp;&amp; id.value" ng-repeat="(aut, id) in rel.targetModel.identifier">
@@ -45,6 +52,21 @@
                 <span class="label label-info">{{ contact.useModel | oizConcept }}</span>
             </div>
         </div>
-        
+        <div class="row" ng-if="rel.targetModel.address">
+            <label class="col-sm-4 col-xs-12">
+                {{ 'locale.patient.mother.domicile' | i18n }}
+            </label>
+            <div class="col-sm-6 col-xs-12">
+                {{ rel.targetModel.address | oizEntityAddress }}
+            </div>
+        </div>
+        <div class="row" ng-if="rel.targetModel.relationship.Birthplace.targetModel">
+            <label class="col-sm-4 col-xs-12">
+                {{ 'locale.patient.mother.birthplace' | i18n }}
+            </label>
+            <div class="col-sm-6 col-xs-12">
+                {{ rel.targetModel.relationship.Birthplace.targetModel.name.OfficialRecord | oizEntityName }}
+            </div>
+        </div>
     </div>
 </div>

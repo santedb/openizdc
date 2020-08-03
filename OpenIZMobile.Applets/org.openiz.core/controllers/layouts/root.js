@@ -56,7 +56,7 @@ var layoutApp = angular.module('layout', ['openiz', 'ngSanitize', 'ui.router', '
                 },
                 continueWith: function (d) {
 
-                    if (d.length == 0)
+                    if (d.length == 0 && !$rootScope.session)
                         setTimeout(getSystemAlerts, 1000);
 
                     var showdownConv = new showdown.Converter();

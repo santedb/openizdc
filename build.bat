@@ -1,15 +1,18 @@
-@echo off
+
 set version=%1
 
 set msbuild="";
-IF EXIST "C:\Program Files (x86)\MSBuild\14.0\Bin\MSBuild.exe" (
-set msbuild="C:\Program Files (x86)\MSBuild\14.0\Bin\MSBuild.exe";
-) ELSE IF EXIST "c:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\MSBuild\15.0\Bin\MSBuild.exe" (
-set msbuild="c:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\MSBuild\15.0\Bin\MSBuild.exe"
-) ELSE (
-echo "No MSBUILD"
-exit
-)
+		if exist "c:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\15.0\Bin\MSBuild.exe" (
+	        	echo will use VS 2019 Community build tools
+        		set msbuild="c:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\15.0\Bin\MSBuild.exe"
+		) else ( 
+			if exist "c:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\MSBuild\Current\Bin\MSBuild.exe" (
+        			set msbuild="c:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\MSBuild\Current\Bin\MSBuild.exe"
+	        		echo will use VS 2019 Pro build tools
+			) else (
+				echo Unable to locate VS 2019 build tools, will use default build tools on path
+			)
+		)
 
 %msbuild% openizmobile.sln /t:Rebuild /p:Configuration=SignedRelease /p:Platform=x86
 %msbuild% openizmobile.sln /t:Rebuild /p:Configuration=SignedRelease
@@ -47,6 +50,7 @@ copy "..\bin\SignedRelease\OpenIZ.Mobile.Reporting.dll"
 copy "..\bin\SignedRelease\OpenIZ.Protocol.Xml.dll"
 copy "..\bin\SignedRelease\OpenIZ.Protocol.Xml.Test.dll"
 copy "..\bin\SignedRelease\SharpCompress.dll"
+copy "..\bin\SignedRelease\Esprima.dll"
 copy "..\bin\SignedRelease\SQLite.Net.dll"
 copy "..\bin\SignedRelease\SQLite.Net.Platform.Generic.dll"
 copy "..\bin\SignedRelease\sqlite3.dll"

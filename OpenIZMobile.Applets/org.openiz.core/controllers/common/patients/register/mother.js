@@ -26,6 +26,7 @@ angular.module('layout').controller('MothersInformationController', ['$scope', f
 
     $scope.scanBarcode = scanBarcode;
     $scope.mothersRegexValidation = '';
+    $scope.syncDateOfBirth = syncDateOfBirth;
 
     angular.element(document).ready(init);
 
@@ -42,4 +43,15 @@ angular.module('layout').controller('MothersInformationController', ['$scope', f
         }
         mother.targetModel.identifier.value = OpenIZ.App.scanBarcode();
     };
+
+    // Sync date of birth
+    function syncDateOfBirth(model, birthDateSet) {
+
+        if (model.dateOfBirth && birthDateSet)
+            model.age = moment().diff(model.dateOfBirth, 'years', false);
+        else {
+            model.dateOfBirth = moment().subtract({ years: model.age }).toDate();
+            model.dateOfBirthPrecision = 2;
+        }
+    }
 }]);

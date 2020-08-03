@@ -40,7 +40,7 @@
             {{ 'locale.patient.demographics.dateOfBirth' | i18n }}
         </label>
         <div class="col-sm-10 col-xs-12">
-            {{ patient.dateOfBirth | datePrecisionFormat:patient.dateOfBirthPrecision }}
+            {{ patient.dateOfBirth | datePrecisionFormat:patient.dateOfBirthPrecision }} ({{ patient.dateOfBirth | age }})
         </div>
     </div>
     <div class="row" ng-if="patient.multipleBirthOrder">

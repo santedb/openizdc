@@ -388,9 +388,10 @@ namespace OpenIZ.Mobile.Core.Synchronization
 
                         // Reconstitute bundle
                         var bundle = dpe as Bundle;
-                        bundle.Item = bundle.Item.OfType<IdentifiedData>().ToList();
+                        
                         if (bundle != null && syncItm.IsRetry)
                         {
+                            bundle.Item = bundle?.Item.OfType<IdentifiedData>().ToList();
                             this.m_tracer.TraceInfo("RETRY: Will try with all available data");
                             // Try to grab all references in the bundle
                             foreach (var itm in bundle.Item.OfType<Act>().ToList())

@@ -30,6 +30,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 [Files]
 Source: ".\bin\SignedRelease\Antlr3.Runtime.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: ".\bin\SignedRelease\ExpressionEvaluator.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: ".\bin\SignedRelease\esprima.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: ".\bin\SignedRelease\jint.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: ".\bin\SignedRelease\MARC.HI.EHRS.SVC.Auditing.Core.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: ".\bin\SignedRelease\Microsoft.VisualStudio.QualityTools.UnitTestFramework.dll"; DestDir: "{app}"; Flags: ignoreversion
