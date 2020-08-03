@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2015-2019 Mohawk College of Applied Arts and Technology
+ * Copyright 2015-2018 Mohawk College of Applied Arts and Technology
  * 
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you 
@@ -14,8 +14,8 @@
  * License for the specific language governing permissions and limitations under 
  * the License.
  * 
- * User: justi
- * Date: 2018-7-7
+ * User: fyfej
+ * Date: 2017-9-1
  */
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -24,12 +24,12 @@ using Android.App;
 // Information about this assembly is defined by the following attributes.
 // Change them to the values specific to your project.
 
-[assembly: AssemblyTitle("Tanzania Immunization Registry")]
+[assembly: AssemblyTitle ("OpenIZ Disconnected Client")]
 [assembly: AssemblyDescription ("Open Immunize Disconnected Client Xamarin Android Version")]
 [assembly: AssemblyConfiguration ("")]
 [assembly: AssemblyCompany ("Mohawk College of Applied Arts and Technology")]
-[assembly: AssemblyProduct("Tanzania Immunization Registry (TImR)")]
-[assembly: AssemblyCopyright ("")]
+[assembly: AssemblyProduct ("Open Immunize")]
+[assembly: AssemblyCopyright ("(C) 2015-2018 Mohawk College of Applied Arts and Technology")]
 [assembly: AssemblyTrademark ("")]
 [assembly: AssemblyCulture ("")]
 

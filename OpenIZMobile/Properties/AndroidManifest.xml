@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <!--
- - Copyright 2015-2019 Mohawk College of Applied Arts and Technology
+ - Copyright 2015-2018 Mohawk College of Applied Arts and Technology
  -
  - 
  - Licensed under the Apache License, Version 2.0 (the "License"); you 
@@ -15,10 +15,10 @@
  - License for the specific language governing permissions and limitations under 
  - the License.
  - 
- - User: justi
- - Date: 2018-7-7
+ - User: fyfej
+ - Date: 2017-9-1
  -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionName="1.6" package="tz.timr.mobile" android:installLocation="internalOnly" android:versionCode="65">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="62" android:versionName="1.6" package="org.openiz.mobile" android:installLocation="auto">
 	<uses-sdk android:minSdkVersion="19" android:targetSdkVersion="27" />
 	<uses-permission android:name="android.permission.STATUS_BAR" />
 	<uses-permission android:name="android.permission.REBOOT" />
