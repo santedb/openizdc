@@ -76,6 +76,7 @@
     <property name="creationTimeModel" behavior="never"/>
     <property name="version" behavior="never"/>
     <property name="name" all="true" ref="EntityName" behavior="always"/>
+    <property name="address" all="true" ref="EntityAddress" behavior="always"/>
     <property name="identifier" all="true" ref="EntityIdentifier" behavior="always"/>
     <property name="relationship" all="true" behavior="always">
       <property name="*" ref="EntityRelationship"/>
@@ -131,7 +132,6 @@
       <property name="*" all="true" behavior="always" />
     </property>
     <property name="relationship" all="true" behavior="always">
-      
       <property name="DedicatedServiceDeliveryLocation">
         <property name="id"/>
         <property name="relationshipType"/>

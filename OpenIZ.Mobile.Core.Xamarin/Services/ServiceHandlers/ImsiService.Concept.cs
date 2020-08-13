@@ -57,6 +57,13 @@ namespace OpenIZ.Mobile.Core.Xamarin.Services.ServiceHandlers
                 var concept = conceptRepositoryService.GetConcept(Guid.Parse(search["_id"].FirstOrDefault()), Guid.Empty);
                 return concept;
             }
+            else if(search.ContainsKey("_extRef"))
+            {
+                var extString = search["_extRef"].FirstOrDefault();
+                var rawId = Enumerable.Range(4, extString.Length - 4).Where(o => o % 2 == 0).Select(x => Convert.ToByte(extString.Substring(x, 2), 16)).ToArray();
+                var concept = conceptRepositoryService.GetConcept(Guid.Parse(Encoding.UTF8.GetString(rawId)), Guid.Empty);
+                return concept;
+            }
             else
             {
                 int totalResults = 0,

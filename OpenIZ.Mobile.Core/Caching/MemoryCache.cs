@@ -79,6 +79,22 @@ namespace OpenIZ.Mobile.Core.Caching
         private long m_minAgeTicks = new TimeSpan(0, 0, 30).Ticks;
 
 
+        private Type[] m_ignore =
+        {
+            typeof(EntityRelationship),
+            typeof(ActRelationship),
+            typeof(ActParticipation),
+            typeof(EntityAddress),
+            typeof(EntityIdentifier),
+            typeof(EntityName),
+            typeof(EntityTelecomAddress),
+            typeof(EntityTag),
+            typeof(EntityExtension),
+            typeof(EntityNameComponent),
+            typeof(EntityAddressComponent),
+            typeof(ActIdentifier)
+        };
+
         /// <summary>
         /// Bind types
         /// </summary>
@@ -90,7 +106,7 @@ namespace OpenIZ.Mobile.Core.Caching
             typeof(ConceptSet),
             typeof(ConceptName),
             typeof(SecurityUser),
-            typeof(UserEntity)
+            typeof(UserEntity),
         };
 
         /// <summary>
@@ -144,7 +160,7 @@ namespace OpenIZ.Mobile.Core.Caching
 
             Type objData = data?.GetType();
             var idData = data as IIdentifiedEntity;
-            if (idData == null || !idData.Key.HasValue)
+            if (idData == null || !idData.Key.HasValue || this.m_ignore.Contains(data.GetType()))
                 return;
 
             CacheEntry candidate = null;
@@ -336,6 +352,26 @@ namespace OpenIZ.Mobile.Core.Caching
             }
 
 
+        }
+
+        /// <summary>
+        /// Removes all objects which refence the data
+        /// </summary>
+        /// <param name="data"></param>
+        internal void RemoveRelated(IdentifiedData data)
+        {
+            if(data is Entity)
+            {
+                lock (this.m_lock)
+                {
+                    var related = this.m_entryTable.ToDictionary(o => o.Key, o => o.Value).Where(o =>
+                        {
+                            return o.Value.Data is Entity entity && entity.Relationships.Any(r => r.TargetEntityKey == data.Key);
+                        }).ToArray();
+                    foreach (var i in related)
+                        this.m_entryTable.Remove(i.Key);
+                }
+            }
         }
 
         /// <summary>

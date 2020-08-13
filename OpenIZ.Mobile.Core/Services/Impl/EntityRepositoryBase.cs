@@ -219,7 +219,7 @@ namespace OpenIZ.Mobile.Core.Services.Impl
 
                 this.DataUpdated?.Invoke(this, new AuditDataEventArgs(data));
             }
-            catch (DataPersistenceException)
+            catch (DataPersistenceException e)
             {
                 data = businessRulesService?.BeforeInsert(data) ?? data;
                 data = persistenceService.Insert(data);

@@ -116,7 +116,20 @@ namespace OpenIZ.Mobile.Core.Xamarin.Services.ServiceHandlers
                     patient.LoadCollection<EntityTelecomAddress>(nameof(Entity.Telecoms));
                     patient.LoadCollection<EntityTag>(nameof(Entity.Tags));
                     patientBundle.Add(patient);
-                    Bundle.ProcessModel(patient, patientBundle, true);
+
+                    foreach (var rel in patient.Relationships)
+                    {
+                        var targetKey = rel.TargetEntityKey;
+                        var ent = rel.LoadProperty<Entity>(nameof(EntityRelationship.TargetEntity));
+                        if (ent == null)
+                        {
+                            ent = imsiIntegration.Get<Person>(targetKey.Value, null);
+                            if(ent != null)
+                                ApplicationContext.Current.GetService<IDataPersistenceService<Entity>>().Insert(ent);
+                        }
+                        if (ent is Person)
+                            patientBundle.Insert(0, ent);
+                    }
 
                     var acts = actDataRepository.Find<Act>(act => act.Participations.Where(r => r.ParticipationRole.Mnemonic == "RecordTarget").Any(r => r.PlayerEntity.Key == patient.Key) && act.ObsoletionTime == null, aofs, 25, out int atr, aqid);
                     while (aofs < atr)
@@ -129,7 +142,22 @@ namespace OpenIZ.Mobile.Core.Xamarin.Services.ServiceHandlers
                             a.LoadCollection<ActExtension>(nameof(Act.Extensions));
                             a.LoadCollection<ActIdentifier>(nameof(Act.Identifiers));
                             patientBundle.Add(a);
-                            Bundle.ProcessModel(a, patientBundle, true);
+
+                            foreach (var rel in a.Relationships)
+                            {
+                                var targetKey = rel.TargetActKey;
+                                var ent = rel.LoadProperty<Act>(nameof(ActRelationship.TargetAct));
+                                if (ent == null)
+                                {
+                                    ent = imsiIntegration.Get<Act>(targetKey.Value, null);
+                                    if (ent != null)
+                                        ApplicationContext.Current.GetService<IDataPersistenceService<Act>>().Insert(ent);
+                                }
+                                if (ent != null)
+                                    patientBundle.Insert(0, ent);
+                            }
+
+                            //Bundle.ProcessModel(a, patientBundle, true);
                         }
                         aofs += 25;
                         acts = actDataRepository.Find<Act>(act => act.Participations.Where(r => r.ParticipationRole.Mnemonic == "RecordTarget").Any(r => r.PlayerEntity.Key == patient.Key) && !act.ObsoletionTime.HasValue, aofs, 25, out atr, aqid);

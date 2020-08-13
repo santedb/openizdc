@@ -50,37 +50,12 @@ angular.module('openiz', [])
 
         this.$get = ['$rootScope', '$filter', function ($rootScope, $filter) {
             var localize = {
-                dictionary: OpenIZ.Localization.getStrings(OpenIZ.Localization.getLocale()),
-                /**
-                 * @summary Sets the locale of the user interface 
-                 */
-                setLanguage: function (locale) {
-                    if (OpenIZ.Localization.getLocale() != locale) {
-                        OpenIZ.Localization.setLocale(locale);
-                        localize.dictionary = OpenIZ.Localization.getStrings(locale);
-                        //$rootScope.$broadcast('localizeResourcesUpdated');
-                        //$window.location.reload();
-                        //$state.reload();
-                        //$rootScope.$applyAsync();
-                    }
-                },
                 /**
                  * @summary Gets the specified locale key
                  */
                 getString: function (key) {
 
-                    // make sure we always have the latest locale
-                    //localize.dictionary = OpenIZ.Localization.getStrings(OpenIZ.Localization.getLocale());
-
-                    var entry = localize.dictionary[key];
-                    if (entry != null)
-                        return entry;
-                    else {
-                        var oiz = OpenIZ.Localization.getString(key);
-                        if (oiz == null)
-                            return key;
-                        return oiz;
-                    }
+                    return OpenIZ.Localization.getString(key);
                 }
             };
             return localize;
@@ -97,7 +72,7 @@ angular.module('openiz', [])
      */
     .filter('i18n', ['$rootScope', 'localize', function ($rootScope, localize) {
         var filterFn = function (key) {
-            return localize.getString(key);
+            return OpenIZ.Localization.getString(key);
         };
         filterFn.$stateful = false;
         return filterFn;
@@ -519,7 +494,8 @@ angular.module('openiz', [])
             scope: {
                 defaultResults: '='
             },
-            link: function (scope, element, attrs, ctrl) {
+            require: 'ngModel',
+            link: function (scope, element, attrs, ngModel) {
                 $timeout(function () {
                     var modelType = attrs.oizEntitysearch;
                     var filterString = attrs.filter;
@@ -545,7 +521,9 @@ angular.module('openiz', [])
                             var s = scope;
                             if (defaultResults != null) {
                                 try {
-                                    return eval(defaultResults);
+
+                                    var defaults = eval(defaultResults);
+                                    return defaults;
                                 } catch (e) {
 
                                 }
@@ -719,11 +697,22 @@ angular.module('openiz', [])
                     //);
                     // HACK: For angular values, after select2 has "selected" the value, it will be a ? string: ID ? value we do not want this
                     // we want the actual value, so this little thing corrects this bugginess
-                    $(element).on("select2:select", function (e) {
+                    $(element).on("select2:select", function(e) {
+
                         if (e.currentTarget.value.indexOf("? string:") == 0) {
                             e.currentTarget.value = e.currentTarget.value.substring(9, e.currentTarget.value.length - 2);
                         }
-                        e.currentTarget.options.selectedIndex = e.currentTarget.options.length - 1;
+                        var val = $(element).select2("val");
+                        scope.$apply(() => ngModel.$setViewValue(val));
+
+                        //var selectedId = e.params.data.id;
+                        //if (selectedId)
+                        //    for (var opt in e.currentTarget.options)
+                        //        if(e.currentTarget.options[opt].value == selectedId)
+                        //            e.currentTarget.options.selectedIndex = opt;
+                        //else
+                        //    e.currentTarget.options.selectedIndex = e.currentTarget.options.length - 1;
+
                         //{
                         //    while (e.currentTarget.options.length > 1)
                         //        e.currentTarget.options.splice(1);

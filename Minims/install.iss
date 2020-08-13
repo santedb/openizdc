@@ -33,7 +33,7 @@ Source: ".\bin\SignedRelease\ExpressionEvaluator.dll"; DestDir: "{app}"; Flags: 
 Source: ".\bin\SignedRelease\esprima.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: ".\bin\SignedRelease\jint.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: ".\bin\SignedRelease\MARC.HI.EHRS.SVC.Auditing.Core.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: ".\bin\SignedRelease\Microsoft.VisualStudio.QualityTools.UnitTestFramework.dll"; DestDir: "{app}"; Flags: ignoreversion
+;Source: ".\bin\SignedRelease\Microsoft.VisualStudio.QualityTools.UnitTestFramework.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: ".\bin\SignedRelease\MohawkCollege.Util.Console.Parameters.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: ".\bin\SignedRelease\Mono.Data.Sqlite.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: ".\bin\SignedRelease\Newtonsoft.Json.dll"; DestDir: "{app}"; Flags: ignoreversion
@@ -52,7 +52,7 @@ Source: ".\bin\SignedRelease\OpenIZ.Mobile.Core.dll"; DestDir: "{app}"; Flags: i
 Source: ".\bin\SignedRelease\OpenIZ.Mobile.Core.Xamarin.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: ".\bin\SignedRelease\OpenIZ.Mobile.Reporting.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: ".\bin\SignedRelease\OpenIZ.Protocol.Xml.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: ".\bin\SignedRelease\OpenIZ.Protocol.Xml.Test.dll"; DestDir: "{app}"; Flags: ignoreversion
+;Source: ".\bin\SignedRelease\OpenIZ.Protocol.Xml.Test.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: ".\bin\SignedRelease\SharpCompress.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: ".\bin\SignedRelease\SQLite.Net.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: ".\bin\SignedRelease\SQLite.Net.Platform.Generic.dll"; DestDir: "{app}"; Flags: ignoreversion

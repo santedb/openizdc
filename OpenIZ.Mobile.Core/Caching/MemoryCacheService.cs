@@ -292,6 +292,7 @@ namespace OpenIZ.Mobile.Core.Caching
                 if (rct != null)
                     MemoryCache.Current.RemoveObject( rct.PlayerEntityKey);
             }
+            MemoryCache.Current.RemoveRelated(e.Object as IdentifiedData);
 
         }
 

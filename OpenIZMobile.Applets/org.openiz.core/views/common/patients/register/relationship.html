@@ -114,6 +114,9 @@
                             ng-model="patient.relationship.NextOfKin.targetModel.relationship.Birthplace.target"
                             oiz-entitysearch="Place"
                             data-filter='{ "classConcept" : "48b2ffb3-07db-47ba-ad73-fc8fb8502471" }'>
+                        <option ng-if="patient.relationship.Mother.targetModel.relationship.Birthplace.targetModel" value="{{::patient.relationship.NextOfKin.targetModel.relationship.Birthplace.target}}">
+                            {{ patient.relationship.NextOfKin.targetModel.relationship.Birthplace.targetModel.name.OfficialRecord | oizEntityName }}
+                        </option>
                         <option value="2092c150-ad34-48ae-9a8b-ecfe2cec4f74" selected="selected">Tanzania</option>
                     </select>
                 </div>
@@ -131,7 +134,11 @@
                                 oiz-entitysearch="Place"
                                 data-filter='{ "classConcept" : "!FF34DFA7-C6D3-4F8B-BC9F-14BCDC13BA6C" }'
                                 data-default="scope.$parent.getDefaultVillages(element)"
-                                data-group-by="address.Direct.component.County"></select>
+                                data-group-by="address.Direct.component.County">
+                            <option ng-if="patient.relationship.NextOfKin.targetModel.address.HomeAddress.component" value="{{ ::patient.relationship.NextOfKin.targetModel.address.HomeAddress.villageId}}">
+                                {{(patient.relationship.NextOfKin.targetModel.address.HomeAddress.component.AdditionalLocator || patient.relationship.NextOfKin.targetModel.address.HomeAddress.component.StreetAddressLine || patient.relationship.NextOfKin.targetModel.address.HomeAddress.component.Precinct)}}
+                            </option>
+                        </select>
                         <span class="input-group-btn">
                             <a class="btn btn-default" data-toggle="popover" tabindex="0" data-trigger="focus" title="{{ 'locale.patient.relative.domicile' | i18n }}" data-content="{{ 'locale.patient.relative.domicile.help' | i18n }}"><span class="glyphicon glyphicon-question-sign"></span></a>
                         </span>

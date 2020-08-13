@@ -19,7 +19,7 @@ set msbuild="";
 cd minims
 
 echo Building Windows Installer
-"c:\Program Files (x86)\Inno Setup 5\ISCC.exe" "/o.\dist" ".\install.iss" /d"MyAppVersion=%version%"
+"c:\Program Files (x86)\Inno Setup 6\ISCC.exe" "/o.\dist" ".\install.iss" /d"MyAppVersion=%version%"
 
 echo Building Linux Tarball
 

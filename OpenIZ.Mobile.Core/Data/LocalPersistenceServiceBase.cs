@@ -263,7 +263,7 @@ namespace OpenIZ.Mobile.Core.Data
                     this.Updated?.Invoke(this, new DataPersistenceEventArgs<TData>(data));
                     return data;
                 }
-                catch { throw; }
+                catch { throw ; }
 #if PERFMON
                 finally
                 {
