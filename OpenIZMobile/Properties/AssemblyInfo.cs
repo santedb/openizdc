@@ -24,8 +24,8 @@ using Android.App;
 // Information about this assembly is defined by the following attributes.
 // Change them to the values specific to your project.
 
-[assembly: AssemblyTitle ("OpenIZ Disconnected Client")]
-[assembly: AssemblyDescription ("Open Immunize Disconnected Client Xamarin Android Version")]
+[assembly: AssemblyTitle ("Tanzania Immunization Registry (TImR)")]
+[assembly: AssemblyDescription ("TImR Android Version")]
 [assembly: AssemblyConfiguration ("")]
 [assembly: AssemblyCompany ("Mohawk College of Applied Arts and Technology")]
 [assembly: AssemblyProduct ("Open Immunize")]
