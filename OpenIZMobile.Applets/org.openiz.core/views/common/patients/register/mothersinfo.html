@@ -74,7 +74,6 @@
             </p>
         </div>
     </div>
-    <!-- RITA
     <div class="form-group">
 
         <label class="col-xs-3 control-label ng-cloak" for="motherDobInput">
@@ -103,7 +102,7 @@
                        ng-change="syncDateOfBirth(patient.relationship.Mother.targetModel, true)"
                        ng-required="!motherUnknown" />
                 <span class="input-group-addon input-group-addon-approx">
-                    <label class="control control-&-checkbox">
+                    <label class="control control--checkbox">
                         <div class="approx-add-in">{{ 'locale.patient.demographics.dob.fuzzy' | i18n }}</div>
                         <input type="checkbox"
                                ng-readonly="patientBackup.tag.hasBirthCertificate === 'True'"
@@ -136,7 +135,6 @@
             </p>
         </div>
     </div>
-        -->
     <div class="form-group">
         <label class="col-xs-3 control-label" for="mothersIdentifier">{{ 'locale.patient.mother.identifier' | i18n }}</label>
         <div class="col-xs-9 col-sm-4">
@@ -202,7 +200,6 @@
             <p class="help-block text-danger ng-cloak" ng-show="mothersInfoForm.mothersPhoneNumber.$error.pattern">{{ 'locale.patient.errors.phoneNumber' | i18n}}</p>
         </div>
     </div>
-    <!-- RITA
     <div class="form-group">
         <label class="col-xs-3 control-label" for="mothersBirthplace">{{ 'locale.patient.mother.birthplace' | i18n }}<span ng-if="!editMotherForm &amp;&amp; !motherUnknown">*</span></label>
         <div class="col-xs-9">
@@ -247,5 +244,4 @@
             </div>
         </div>
     </div>
-        -->
 </fieldset>
