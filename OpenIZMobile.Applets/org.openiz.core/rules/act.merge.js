@@ -79,3 +79,8 @@ OpenIZBre.AddBusinessRule("CodedObservation", "BeforeInsert",
     function (act) {
         return __ActMergeFunction(act);
     });
+OpenIZBre.AddBusinessRule("PatientEncounter", "BeforeInsert",
+    /** @param {OpenIZModel.Act} act */
+    function (act) {
+        return __ActMergeFunction(act);
+    });
