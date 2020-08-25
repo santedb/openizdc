@@ -62,6 +62,7 @@
     <Compile Include="Configuration\Data\Migrations\CatalogEdmonton4Update.cs" />
     <Compile Include="Configuration\Data\Migrations\CountrySubscriptionCatalog.cs" />
     <Compile Include="Configuration\Data\Migrations\InitialAuditCatalog.cs" />
+    <Compile Include="Configuration\Data\Migrations\KnowledgeBaseMigration.cs" />
     <Compile Include="Configuration\Data\Migrations\SanteDBSubscription_Out.cs" />
     <Compile Include="Configuration\Data\Migrations\SanteDBSubscription.cs" />
     <Compile Include="Configuration\Data\Migrations\SubscribePrimaryLocationUpdate.cs" />
@@ -85,6 +86,10 @@
     <Compile Include="Data\QueryBuilder\SqlStatement.cs" />
     <Compile Include="Data\QueryBuilder\TableMapping.cs" />
     <Compile Include="Exceptions\DuplicateKeyException.cs" />
+    <Compile Include="Knowledgebase\IKnowledgeBaseService.cs" />
+    <Compile Include="Knowledgebase\KnowledgeBaseCollection.cs" />
+    <Compile Include="Knowledgebase\KnowledgeBaseEntry.cs" />
+    <Compile Include="Knowledgebase\KnowledgebaseService.cs" />
     <Compile Include="Security\Audit\LocalAuditRepositoryService.cs" />
     <Compile Include="Security\Audit\LocalAuditService.cs" />
     <Compile Include="Security\Audit\Model\DbAuditActorAssociation.cs" />

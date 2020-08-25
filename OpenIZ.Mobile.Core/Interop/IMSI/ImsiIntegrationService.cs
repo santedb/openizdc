@@ -24,6 +24,7 @@ using OpenIZ.Core.Interop;
 using OpenIZ.Core.Model;
 using OpenIZ.Core.Model.Acts;
 using OpenIZ.Core.Model.Collection;
+using OpenIZ.Core.Model.DataTypes;
 using OpenIZ.Core.Model.Entities;
 using OpenIZ.Core.Model.Interfaces;
 using OpenIZ.Core.Model.Patch;
@@ -255,7 +256,7 @@ namespace OpenIZ.Mobile.Core.Interop.IMSI
         {
             try
             {
-                if (!(data is Bundle || data is Entity || data is Act))
+                if (!(data is Bundle || data is Entity || data is Act || data is TemplateDefinition))
                     return;
 
                 if (data is Bundle)

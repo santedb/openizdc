@@ -25,29 +25,24 @@
 
 angular.module('layout').controller('SyncCentreController', ['$scope', '$state', '$rootScope', function ($scope, $state, $rootScope) {
 
+    var converter = new showdown.Converter();
 
     $scope.queue = {};
     $scope.closeQueue = closeQueue;
     $scope.requeueAllDead = requeueAllDead;
-    $scope.renderType = renderType;
     $scope.renderB64 = renderB64;
     $scope.requeueItem = requeueItem;
     $scope.deleteQueueItem = deleteQueueItem;
     $scope.selectItem = selectItem;
     $scope.forceSync = forceSync;
-    $scope.renderReason = renderReason;
 
-    // Render reasoning
-    function renderReason(reasonText) {
-        var reason = renderB64(reasonText);
-        reason = reason.substring(0, reason.indexOf("\r"));
-        var p = "";
-        var lastReason = reason.lastIndexOf("Exception:");
-        if (lastReason == -1)
-            return reason;
-        else
-            return reason.substring(lastReason + 10);
-    }
+    $scope.$watch('queue.current', function (n, o) {
+        if (n && n != o) {
+            n.CollectionItem = null;
+            getQueue(n.name);
+        }
+    });
+
 
     function forceSync() {
 
@@ -67,11 +62,33 @@ angular.module('layout').controller('SyncCentreController', ['$scope', '$state',
 
     function getQueue(queueName) {
         OpenIZ.Queue.getQueueAsync({
+            query: { _count: 20, id: "!null" },
             queueName: queueName,
             continueWith: function (data) {
+                $scope.queue[queueName].name = queueName;
                 if ($scope.queue[queueName]) {
                     $scope.queue[queueName].Size = data.Size;
                     $scope.queue[queueName].CollectionItem = data.CollectionItem;
+                }
+                else
+                    $scope.queue[queueName] = data;
+                $scope.queue[queueName].name = queueName;
+                $scope.$apply();
+            },
+            onException: function (data) {
+                $scope.queue[queueName] = { Size: 0 };
+                $scope.$apply();
+            }
+        });
+    }
+
+    function getQueueCount(queueName) {
+        OpenIZ.Queue.getQueueAsync({
+            queueName: queueName,
+            query: { _count: 0, id: "!null" },
+            continueWith: function (data) {
+                if ($scope.queue[queueName]) {
+                    $scope.queue[queueName].Size = data.Size;
                 }
                 else
                     $scope.queue[queueName] = data;
@@ -98,7 +115,15 @@ angular.module('layout').controller('SyncCentreController', ['$scope', '$state',
             id: id,
             continueWith: function (data) {
                 $scope.queue.currentItem = data.CollectionItem[0];
-                $scope.$apply();
+                $scope.queue.currentItem.payload = renderB64($scope.queue.currentItem.payload);
+                if ($scope.queue.currentItem.kb) {
+                    $scope.queue.currentItem.kb.resolution = converter.makeHtml($scope.queue.currentItem.kb.resolution);
+                }
+                if ($scope.queue.currentItem.exception && $scope.queue.currentItem.exception.length > 1024)
+                    $scope.queue.currentItem.exception = $scope.queue.currentItem.exception.substring(0, 1024) + " ... " + ($scope.queue.currentItem.exception.length - 1024) + " more bytes";
+                if ($scope.queue.currentItem.payload && $scope.queue.currentItem.payload.length > 1024) 
+                    $scope.queue.currentItem.payload = $scope.queue.currentItem.payload.substring(0, 1024) + " ... " + ($scope.queue.currentItem.payload.length - 1024) + " more bytes";
+
             },
             onException: function (ex) {
                 if (ex.message)
@@ -107,7 +132,11 @@ angular.module('layout').controller('SyncCentreController', ['$scope', '$state',
                     console.error(ex);
             },
             finally: function () {
-                $scope.isLoading = false;
+                try {
+                    $scope.isLoading = false;
+                    $scope.$apply();
+                }
+                catch (e) {}
             }
         })
     }
@@ -121,40 +150,26 @@ angular.module('layout').controller('SyncCentreController', ['$scope', '$state',
             OpenIZ.App.showWait("#reQueueDeadModal")
         }
 
-        var key =[];
-        for (var k in $scope.queue["dead"].CollectionItem)
-            key.push($scope.queue["dead"].CollectionItem[k].id);
+        OpenIZ.Queue.requeueDeadAsync({
+            continueWith: function (data, state) {
+                // Last queue item?
+                refreshQueueState(true);
+                OpenIZ.App.hideWait("#reQueueDead");
+                OpenIZ.App.hideWait("#reQueueDeadModal");
+            },
+            onException: function (ex) {
+                if (ex.message)
+                    alert(OpenIZ.Localization.getString(ex.message));
+                else
+                    console.error(ex);
+                OpenIZ.App.hideWait("#reQueueDead")
+                OpenIZ.App.hideWait("#reQueueDeadModal");
 
-        for (var k in key) {
-            OpenIZ.Queue.requeueDeadAsync({
-                queueId: key[k],
-                continueWith: function (data, state) {
-                    // Last queue item?
-                    if(state == key.length - 1)
-                    refreshQueueState(true);
-                    OpenIZ.App.hideWait("#reQueueDead");
-                    OpenIZ.App.hideWait("#reQueueDeadModal");
-                },
-                state: k,
-                onException: function (ex) {
-                    if (ex.message)
-                        alert(OpenIZ.Localization.getString(ex.message));
-                    else
-                        console.error(ex);
-                    OpenIZ.App.hideWait("#reQueueDead")
-                    OpenIZ.App.hideWait("#reQueueDeadModal");
-
-                }
-            });
-        }
+            }
+        });
     };
 
-    function renderType(typeName) {
-        var pat = /^((\w+)[\.,])*/;
-        var matches = pat.exec(typeName);
-        return matches[2];
-    }
-
+    
     // Render the specified tag from base64
     function renderB64(tag) {
         if (tag) {
@@ -227,13 +242,13 @@ angular.module('layout').controller('SyncCentreController', ['$scope', '$state',
     // @param {bool} noTimer When true, instructs the function not to re-run on a timer
     function refreshQueueState(noTimer) {
 
-        getQueue(OpenIZ.Queue.QueueNames.InboundQueue);
-        getQueue(OpenIZ.Queue.QueueNames.OutboundQueue);
-        getQueue(OpenIZ.Queue.QueueNames.DeadLetterQueue);
-        getQueue(OpenIZ.Queue.QueueNames.AdminQueue);
+        getQueueCount(OpenIZ.Queue.QueueNames.InboundQueue);
+        getQueueCount(OpenIZ.Queue.QueueNames.OutboundQueue);
+        getQueueCount(OpenIZ.Queue.QueueNames.DeadLetterQueue);
+        getQueueCount(OpenIZ.Queue.QueueNames.AdminQueue);
 
         if (!noTimer && $state.is('org-openiz-core.sync') && $rootScope.session != null)
-            setTimeout(refreshQueueState, 5000);
+            setTimeout(refreshQueueState, 10000);
     }
 
     refreshQueueState();

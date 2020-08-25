@@ -366,7 +366,7 @@ namespace OpenIZ.Mobile.Core.Caching
                 {
                     var related = this.m_entryTable.ToDictionary(o => o.Key, o => o.Value).Where(o =>
                         {
-                            return o.Value.Data is Entity entity && entity.Relationships.Any(r => r.TargetEntityKey == data.Key);
+                            return o.Value.Data is Entity entity && entity.Relationships.ToArray().Any(r => r.TargetEntityKey == data.Key);
                         }).ToArray();
                     foreach (var i in related)
                         this.m_entryTable.Remove(i.Key);

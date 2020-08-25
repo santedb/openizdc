@@ -124,7 +124,7 @@ namespace OpenIZ.Mobile.Core.Xamarin.Services.ServiceHandlers
                         if (ent == null)
                         {
                             ent = imsiIntegration.Get<Person>(targetKey.Value, null);
-                            if(ent != null)
+                            if (ent != null)
                                 ApplicationContext.Current.GetService<IDataPersistenceService<Entity>>().Insert(ent);
                         }
                         if (ent is Person)
@@ -441,48 +441,71 @@ namespace OpenIZ.Mobile.Core.Xamarin.Services.ServiceHandlers
         [return: RestMessage(RestMessageFormat.Json)]
         public void ReQueueDead()
         {
-            var id = Int32.Parse(MiniImsServer.CurrentContext.Request.QueryString["_id"]);
 
-            // Get > Requeue > Delete
-            var queueItem = SynchronizationQueue.DeadLetter.Get(id);
-            queueItem.IsRetry = true;
-
-            // HACK: If the queue item is for a bundle and the reason it was rejected was a not null constraint don't re-queue it... 
-            // This is caused by older versions of the IMS sending down extensions on our place without an extension type (pre 0.9.11)
-            if (Encoding.UTF8.GetString(queueItem.TagData).Contains("entity_extension.extensionType"))
+            if (Int32.TryParse(MiniImsServer.CurrentContext.Request.QueryString["_id"], out int id))
             {
-                // Get the bundle object
-                var data = ApplicationContext.Current.GetService<IQueueFileProvider>().GetQueueData(queueItem.Data, Type.GetType(queueItem.Type));
-
-                if (data is Place ||
-                    (data as Bundle)?.Item.All(o => o is Place) == true &&
-                    (data as Bundle)?.Item.Count == 1
-                )
+                // Get > Requeue > Delete
+                var queueItem = SynchronizationQueue.DeadLetter.Get(id);
+                queueItem.IsRetry = true;
+                switch (queueItem.OriginalQueue)
                 {
-                    SynchronizationQueue.DeadLetter.Delete(id);
-                    return;
+                    case "inbound":
+                    case "inbound_queue":
+                        SynchronizationQueue.Inbound.EnqueueRaw(new InboundQueueEntry(queueItem));
+                        break;
+                    case "outbound":
+                    case "outbound_queue":
+                        SynchronizationQueue.Outbound.EnqueueRaw(new OutboundQueueEntry(queueItem));
+                        break;
+                    case "admin":
+                    case "admin_queue":
+                        SynchronizationQueue.Admin.EnqueueRaw(new OutboundAdminQueueEntry(queueItem));
+                        break;
+                    default:
+                        throw new KeyNotFoundException(queueItem.OriginalQueue);
                 }
-            }
 
-            switch (queueItem.OriginalQueue)
+                SynchronizationQueue.DeadLetter.Delete(id);
+            }
+            else
             {
-                case "inbound":
-                case "inbound_queue":
-                    SynchronizationQueue.Inbound.EnqueueRaw(new InboundQueueEntry(queueItem));
-                    break;
-                case "outbound":
-                case "outbound_queue":
-                    SynchronizationQueue.Outbound.EnqueueRaw(new OutboundQueueEntry(queueItem));
-                    break;
-                case "admin":
-                case "admin_queue":
-                    SynchronizationQueue.Admin.EnqueueRaw(new OutboundAdminQueueEntry(queueItem));
-                    break;
-                default:
-                    throw new KeyNotFoundException(queueItem.OriginalQueue);
+
+                IEnumerable<int> identifiers = new int[0];
+                int ofs = 0, total = 1;
+                while (ofs < total)
+                {
+                    identifiers = identifiers.Union(SynchronizationQueue.DeadLetter.Query(o => o.OriginalQueue != null, ofs, 100, out total).Select(o => o.Id));
+                    ofs += 100;
+                }
+
+                foreach (var idi in identifiers)
+                {
+                    // Get > Requeue > Delete
+                    var queueItem = SynchronizationQueue.DeadLetter.Get(idi);
+                    queueItem.IsRetry = true;
+                    switch (queueItem.OriginalQueue)
+                    {
+                        case "inbound":
+                        case "inbound_queue":
+                            SynchronizationQueue.Inbound.EnqueueRaw(new InboundQueueEntry(queueItem));
+                            break;
+                        case "outbound":
+                        case "outbound_queue":
+                            SynchronizationQueue.Outbound.EnqueueRaw(new OutboundQueueEntry(queueItem));
+                            break;
+                        case "admin":
+                        case "admin_queue":
+                            SynchronizationQueue.Admin.EnqueueRaw(new OutboundAdminQueueEntry(queueItem));
+                            break;
+                        default:
+                            throw new KeyNotFoundException(queueItem.OriginalQueue);
+                    }
+
+                    SynchronizationQueue.DeadLetter.Delete(queueItem.Id);
+                }
+
             }
 
-            SynchronizationQueue.DeadLetter.Delete(id);
         }
 
         /// <summary>
@@ -492,7 +515,7 @@ namespace OpenIZ.Mobile.Core.Xamarin.Services.ServiceHandlers
         [RestOperation(FaultProvider = nameof(AdminFaultProvider), Method = "GET", UriPath = "/queue")]
         [Demand(PolicyIdentifiers.Login)]
         [return: RestMessage(RestMessageFormat.Json)]
-        public AmiCollection<SynchronizationQueueEntry> GetQueueEntry()
+        public AmiCollection<SynchronizationQueueViewModel> GetQueueEntry()
         {
             var search = NameValueCollection.ParseQueryString(MiniImsServer.CurrentContext.Request.Url.Query);
             int offset = Int32.Parse(MiniImsServer.CurrentContext.Request.QueryString["_offset"] ?? "0"),
@@ -526,9 +549,14 @@ namespace OpenIZ.Mobile.Core.Xamarin.Services.ServiceHandlers
                         throw new KeyNotFoundException();
                 }
 
-                retVal.Data = Convert.ToBase64String(ApplicationContext.Current.GetService<IQueueFileProvider>().GetQueueData(retVal.Data));
-
-                return new AmiCollection<SynchronizationQueueEntry>() { CollectionItem = new List<SynchronizationQueueEntry>() { retVal } };
+                // Get AMI Collection
+                return new AmiCollection<SynchronizationQueueViewModel>()
+                {
+                    CollectionItem = new List<SynchronizationQueueViewModel>()
+                    {
+                        new SynchronizationQueueViewModel(retVal, ApplicationContext.Current.GetService<IQueueFileProvider>().GetQueueData(retVal.Data))
+                    }
+                };
             }
             else
                 // Get the queue
@@ -537,16 +565,8 @@ namespace OpenIZ.Mobile.Core.Xamarin.Services.ServiceHandlers
                     case "inbound":
                         {
                             var predicate = QueryExpressionParser.BuildLinqExpression<InboundQueueEntry>(search);
-                            return new AmiCollection<SynchronizationQueueEntry>(SynchronizationQueue.Inbound.Query(predicate, offset, count, out totalResults)
-                                .Select(o => new InboundQueueEntry()
-                                {
-                                    Id = o.Id,
-                                    CreationTime = o.CreationTime,
-                                    Operation = o.Operation,
-                                    Type = o.Type
-                                })
-                                .OfType<SynchronizationQueueEntry>()
-                                .ToList())
+                            return new AmiCollection<SynchronizationQueueViewModel>(SynchronizationQueue.Inbound.Query(predicate, offset, count, out totalResults)
+                                .Select(o => new SynchronizationQueueViewModel(o)).ToList())
                             {
                                 Size = totalResults,
                                 Offset = offset
@@ -555,15 +575,8 @@ namespace OpenIZ.Mobile.Core.Xamarin.Services.ServiceHandlers
                     case "outbound":
                         {
                             var predicate = QueryExpressionParser.BuildLinqExpression<OutboundQueueEntry>(search);
-                            return new AmiCollection<SynchronizationQueueEntry>(SynchronizationQueue.Outbound.Query(predicate, offset, count, out totalResults)
-                                .Select(o => new OutboundQueueEntry()
-                                {
-                                    Id = o.Id,
-                                    CreationTime = o.CreationTime,
-                                    Operation = o.Operation,
-                                    Type = o.Type
-                                })
-                                .OfType<SynchronizationQueueEntry>().ToList())
+                            return new AmiCollection<SynchronizationQueueViewModel>(SynchronizationQueue.Outbound.Query(predicate, offset, count, out totalResults)
+                                .Select(o => new SynchronizationQueueViewModel(o)).ToList())
                             {
                                 Size = totalResults,
                                 Offset = offset
@@ -572,13 +585,8 @@ namespace OpenIZ.Mobile.Core.Xamarin.Services.ServiceHandlers
                     case "admin":
                         {
                             var predicate = QueryExpressionParser.BuildLinqExpression<OutboundAdminQueueEntry>(search);
-                            return new AmiCollection<SynchronizationQueueEntry>(SynchronizationQueue.Admin.Query(predicate, offset, count, out totalResults).Select(o => new OutboundAdminQueueEntry()
-                            {
-                                Id = o.Id,
-                                CreationTime = o.CreationTime,
-                                Operation = o.Operation,
-                                Type = o.Type
-                            }).OfType<SynchronizationQueueEntry>().ToList())
+                            return new AmiCollection<SynchronizationQueueViewModel>(SynchronizationQueue.Admin.Query(predicate, offset, count, out totalResults)
+                                .Select(o => new SynchronizationQueueViewModel(o)).ToList())
                             {
                                 Size = totalResults,
                                 Offset = offset
@@ -587,15 +595,8 @@ namespace OpenIZ.Mobile.Core.Xamarin.Services.ServiceHandlers
                     case "dead":
                         {
                             var predicate = QueryExpressionParser.BuildLinqExpression<DeadLetterQueueEntry>(search);
-                            return new AmiCollection<SynchronizationQueueEntry>(SynchronizationQueue.DeadLetter.Query(predicate, offset, count, out totalResults).Select(o => new DeadLetterQueueEntry()
-                            {
-                                Id = o.Id,
-                                CreationTime = o.CreationTime,
-                                Operation = o.Operation,
-                                Type = o.Type,
-                                OriginalQueue = o.OriginalQueue,
-                                TagData = o.TagData
-                            }).OfType<SynchronizationQueueEntry>().ToList())
+                            return new AmiCollection<SynchronizationQueueViewModel>(SynchronizationQueue.DeadLetter.Query(predicate, offset, count, out totalResults)
+                                .Select(o => new SynchronizationQueueViewModel(o)).ToList())
                             {
                                 Size = totalResults,
                                 Offset = offset

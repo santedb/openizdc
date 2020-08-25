@@ -3720,8 +3720,14 @@ var OpenIZ = OpenIZ || {
          * @method
          */
         getQueueAsync: function (controlData) {
+
+            if (!controlData.query)
+                controlData.query = { id: "!null" };
+            controlData.query._queue = controlData.queueName;
+            controlData.query._id = controlData.id;
+
             OpenIZ.Util.simpleGet("/__app/queue", {
-                query: { _queue: controlData.queueName, id: "!null", _id: controlData.id },
+                query: controlData.query,
                 continueWith: controlData.continueWith,
                 onException: controlData.onException,
                 finally: controlData.finally,

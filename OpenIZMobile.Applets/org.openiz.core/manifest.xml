@@ -18,7 +18,7 @@
  - Date: 2017-10-30
  -->
 <AppletManifest xmlns="http://openiz.org/applet">
-  <info id="org.openiz.core" version="1.9.0.0">
+  <info id="org.openiz.core" version="1.10.0.0">
     <icon>/org.openiz.core/img/icon.png</icon>
     <name lang="en">OpenIZ Disconnected Client Core</name>
     <author>Mohawk College of Applied Arts and Technology - mHealth &amp; eHealth Development &amp; Innovation Centre</author>
@@ -497,7 +497,17 @@
     <string key="locale.sync.conflict">Conflict</string>
     <string key="locale.sync.retry">Retry Conflicted</string>
     <string key="locale.sync.force">Synchronize Now</string>
-
+    <string key="locale.sync.queue.errorType">Error Type</string>
+    <string key="locale.sync.queue.original">Original Operation</string>
+    <string key="locale.sync.queue.errorMessage">Error</string>
+    <string key="locale.sync.queue.resolution">How to resolve</string>
+    <string key="locale.sync.queue.error">Error - Data was not processed</string>
+    <string key="locale.sync.queue.warning">Warn - Some data could be processed</string>
+    <string key="locale.sync.queue.information">Info - All data was processed</string>
+    <string key="locale.sync.queue.unknown">No Result Yet</string>
+    <string key="locale.sync.resolve.summary">Summary of Conflict</string>
+    <string key="locale.sync.resolve.detail">Details</string>
+    <string key="locale.sync.resolve.exception">Full Exception</string>
     <string key="locale.sync.resource.AlertMessage">Alert Messages</string>
     <string key="locale.sync.resource.ConceptSet">Terminology Sets</string>
     <string key="locale.sync.resource.AssigningAuthority">Identifier Types</string>

@@ -21,6 +21,8 @@ using OpenIZ.Core.Alert.Alerting;
 using OpenIZ.Core.Model;
 using OpenIZ.Core.Model.Acts;
 using OpenIZ.Core.Model.Collection;
+using OpenIZ.Core.Model.Constants;
+using OpenIZ.Core.Model.DataTypes;
 using OpenIZ.Core.Model.Entities;
 using OpenIZ.Core.Model.Interfaces;
 using OpenIZ.Core.Model.Patch;
@@ -64,6 +66,9 @@ namespace OpenIZ.Mobile.Core.Synchronization
         /// Queue has been exhuasted
         /// </summary>
         public event EventHandler<QueueExhaustedEventArgs> QueueExhausted;
+
+        // Configuration
+        private SynchronizationConfigurationSection m_configuration = ApplicationContext.Current.Configuration.GetSection<SynchronizationConfigurationSection>();
 
         // Queue manager 
         private Tracer m_tracer = Tracer.GetTracer(typeof(QueueManagerService));
@@ -354,17 +359,46 @@ namespace OpenIZ.Mobile.Core.Synchronization
             }
         }
 
+        private Dictionary<String, Guid> m_templateCorrection = new Dictionary<string, Guid>();
+        
+        /// <summary>
+        /// Map local template to server template key
+        /// </summary>
+        private Guid MapServerTemplateKey(IIntegrationService integrationService, TemplateDefinition localDefinition)
+        {
+            // Attempt to correct template definition
+            if (!m_templateCorrection.TryGetValue(localDefinition.Mnemonic, out Guid updated))
+            {
+                var remoteTpl = integrationService.Find<TemplateDefinition>(o => o.Mnemonic == localDefinition.Mnemonic, 0, 1);
+                if (!remoteTpl.Item.Any())
+                {
+                    integrationService.Insert(localDefinition);
+                    return localDefinition.Key.Value;
+                }
+                else
+                {
+                    updated = remoteTpl.Item.First().Key.Value;
+                    m_templateCorrection.Add(localDefinition.Mnemonic, updated);
+                    return updated;
+                }
+            }
+            else
+                return updated;
+        }
+
         /// <summary>
         /// Exhaust the outbound queue
         /// </summary>
         public void ExhaustOutboundQueue()
         {
+           
             bool locked = false;
             try
             {
                 locked = Monitor.TryEnter(this.m_outboundLock, 100);
                 if (!locked) return;
                 List<Guid> exportKeys = new List<Guid>();
+
                 // Exhaust the queue
                 while (SynchronizationQueue.Outbound.Count() > 0)
                 {
@@ -388,7 +422,7 @@ namespace OpenIZ.Mobile.Core.Synchronization
 
                         // Reconstitute bundle
                         var bundle = dpe as Bundle;
-                        
+
                         if (bundle != null && syncItm.IsRetry)
                         {
                             bundle.Item = bundle?.Item.OfType<IdentifiedData>().ToList();
@@ -400,20 +434,37 @@ namespace OpenIZ.Mobile.Core.Synchronization
                                     if (!bundle.Item.Any(i => i.Key == ptcpt.PlayerEntityKey))
                                     {
                                         var loadedItm = ptcpt.LoadProperty<Entity>(nameof(ActParticipation.PlayerEntity));
-                                        if(loadedItm != null)
+                                        if (loadedItm != null)
                                             bundle.Item.Add(loadedItm);
                                     }
                             }
-                            foreach(var itm in bundle.Item.OfType<Patient>().ToList())
+                            foreach (var itm in bundle.Item.OfType<Patient>().ToList())
                             {
                                 foreach (var rel in itm.Relationships.ToList())
                                     if (!bundle.Item.Any(i => i.Key == rel.TargetEntityKey))
                                     {
                                         var loadedItm = rel.LoadProperty<Entity>(nameof(EntityRelationship.TargetEntity));
-                                        if(loadedItm != null)
+                                        if (loadedItm != null)
                                             bundle.Item.Add(loadedItm);
                                     }
+                            }
+                        }
 
+
+                        if (dpe is Entity entity && entity.TemplateKey.HasValue)
+                            entity.TemplateKey = this.MapServerTemplateKey(integrationService, entity.LoadProperty<TemplateDefinition>(nameof(entity.Template)));
+                        else if (dpe is Act act && act.TemplateKey.HasValue)
+                            act.TemplateKey = this.MapServerTemplateKey(integrationService, act.LoadProperty<TemplateDefinition>(nameof(act.Template)));
+                        else if (bundle != null)
+                        {
+                            foreach (var itm in bundle.Item)
+                            {
+                                if (itm is TemplateDefinition)
+                                    this.MapServerTemplateKey(integrationService, itm as TemplateDefinition);
+                                else if (itm is Entity bEntity && bEntity.TemplateKey.HasValue)
+                                    bEntity.TemplateKey = this.MapServerTemplateKey(integrationService, bEntity.LoadProperty<TemplateDefinition>(nameof(entity.Template)));
+                                else if (itm is Act bAct && bAct.TemplateKey.HasValue)
+                                    bAct.TemplateKey = this.MapServerTemplateKey(integrationService, bAct.LoadProperty<TemplateDefinition>(nameof(act.Template)));
                             }
                         }
 
@@ -495,6 +546,11 @@ namespace OpenIZ.Mobile.Core.Synchronization
                             SynchronizationQueue.Outbound.UpdateRaw(syncItm);
                         }
                     }
+                    catch (FileNotFoundException) {
+                        SynchronizationQueue.Outbound.DequeueRaw();
+                        throw;
+
+                    }
                     catch (SecurityException) { }
                     catch (Exception ex)
                     {
@@ -506,6 +562,7 @@ namespace OpenIZ.Mobile.Core.Synchronization
                         throw;
                     }
                 }
+
                 this.QueueExhausted?.Invoke(this, new QueueExhaustedEventArgs("outbound", exportKeys.ToArray()));
 
             }
@@ -525,7 +582,21 @@ namespace OpenIZ.Mobile.Core.Synchronization
             try
             {
                 IdentifiedData existing = null;
-                if (!(data is Bundle))
+                // Is this a place and are there extensions that prevent insertion?
+                if(data is Bundle bundle)
+                {
+                    // Corrections to inbound data - 
+                    foreach(var itm in bundle.Item)
+                    {
+                        if (itm is Place place && place.ClassConceptKey == EntityClassKeys.ServiceDeliveryLocation &&
+                            !this.m_configuration.Facilities.Contains(place.Key.ToString()))
+                        {
+                            place.Extensions.Clear(); // Clear extensions
+                            place.Relationships.RemoveAll(o => o.RelationshipTypeKey == EntityRelationshipTypeKeys.OwnedEntity); // Clear stock relationships
+                        }
+                    }
+                }
+                else
                     existing = svc.Get(data.Key.Value) as IdentifiedData;
 
                 this.m_tracer.TraceVerbose("Inserting object from inbound queue: {0}", data);
@@ -577,7 +648,7 @@ namespace OpenIZ.Mobile.Core.Synchronization
                 // Trigger sync?
                 if (e.Data.Type.StartsWith(typeof(Patch).FullName) ||
                             e.Data.Type.StartsWith(typeof(Bundle).FullName) ||
-                            ApplicationContext.Current.Configuration.GetSection<SynchronizationConfigurationSection>().SynchronizationResources.
+                            this.m_configuration.SynchronizationResources.
                     Exists(r => r.ResourceType == Type.GetType(e.Data.Type) &&
                             (r.Triggers & SynchronizationPullTriggerType.OnCommit) != 0))
                 {

@@ -211,7 +211,7 @@ namespace OpenIZ.Mobile.Core.Synchronization.Model
         /// <summary>
         /// Gets or sets data related to why the data is in the dead-letter queue
         /// </summary>
-        [Column("tag"), JsonProperty("tag"), XmlElement("tag")]
+        [Column("tag"), JsonIgnore, XmlIgnore]
         public byte[] TagData { get; set; }
 	}
 
