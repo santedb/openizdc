@@ -209,7 +209,7 @@ namespace OpenIZ.Mobile.Core.Data.Warehouse
                                     var syncFilter = patientSync?.LastSync ?? new DateTime(1900, 01, 01);
                                     while (ofs < tr)
                                     {
-                                        if(tr > 1)
+                                        if (tr > 1)
                                             ApplicationContext.Current.SetProgress(Strings.locale_calculateImportedCareplan, ofs / (float)tr);
 
                                         var prodPatients = patientPersistence.QueryExplicitLoad(p => p.ObsoletionTime == null && p.StatusConcept.Mnemonic != "OBSOLETE" && p.CreationTime >= syncFilter, ofs, 15, out tr, queryId, new String[] { "Patient.Relationships" });
@@ -264,7 +264,7 @@ namespace OpenIZ.Mobile.Core.Data.Warehouse
                                 // Get all patients
                                 lock (this.m_lock)
                                 {
-                                    patients = this.m_actCarePlanPromise.OfType<Patient>().Take(5).ToArray();
+                                    patients = this.m_actCarePlanPromise.OfType<Patient>().Take(Environment.ProcessorCount * 2).ToArray();
                                     this.m_actCarePlanPromise.RemoveAll(d => patients.Contains(d));
                                 }
                                 this.UpdateCarePlan(patients);
@@ -421,7 +421,7 @@ namespace OpenIZ.Mobile.Core.Data.Warehouse
                     }
                     else
                     {
-                        this.QueueWorkItem(e.Data.Item.Where(i=>i is Act || i is Patient).ToArray());
+                        this.QueueWorkItem(e.Data.Item.Where(i => i is Act || i is Patient).ToArray());
                     }
                 };
 
@@ -574,10 +574,10 @@ namespace OpenIZ.Mobile.Core.Data.Warehouse
             {
                 var warehouseService = ApplicationContext.Current.GetService<IAdHocDatawarehouseService>();
 
-                List<Object> warehousePlan = new List<Object>();
 
-                foreach (var p in patients)
+                patients.AsParallel().WithDegreeOfParallelism(Environment.ProcessorCount).ForAll(p =>
                 {
+                    List<Object> warehousePlan = new List<Object>();
                     this.m_tracer.TraceVerbose("Calculating care plan for {0}", p.Key);
                     var data = p; //  ApplicationContext.Current.GetService<IDataPersistenceService<Patient>>().Get(p.Key.Value);
 
@@ -604,10 +604,11 @@ namespace OpenIZ.Mobile.Core.Data.Warehouse
                         sequence_id = o.Protocols.FirstOrDefault()?.Sequence,
                         dose_seq = (o as SubstanceAdministration)?.SequenceId
                     }));
-                }
 
-                // Insert plans
-                warehouseService.Add(this.m_dataMart.Id, warehousePlan);
+                    // Insert plans
+                    warehouseService.Add(this.m_dataMart.Id, warehousePlan);
+                });
+
 
             }
             catch (Exception ex)

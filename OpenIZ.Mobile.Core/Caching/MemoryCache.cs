@@ -39,6 +39,7 @@ using OpenIZ.Core.Model.Collection;
 using OpenIZ.Core.Model.Security;
 using System.Xml.Serialization;
 using OpenIZ.Core.Model.Acts;
+using System.Collections.Concurrent;
 
 namespace OpenIZ.Mobile.Core.Caching
 {
@@ -49,7 +50,7 @@ namespace OpenIZ.Mobile.Core.Caching
     {
 
         // Entry table for the cache
-        private Dictionary<Guid, CacheEntry> m_entryTable = new Dictionary<Guid, CacheEntry>();
+        private ConcurrentDictionary<Guid, CacheEntry> m_entryTable = new ConcurrentDictionary<Guid, CacheEntry>();
 
         // Subscribed types
         private HashSet<Type> m_subscribedTypes = new HashSet<Type>();
@@ -167,9 +168,7 @@ namespace OpenIZ.Mobile.Core.Caching
             if (this.m_entryTable.TryGetValue(idData.Key.Value, out candidate))
                 candidate.Update(data as IdentifiedData);
             else
-                lock (this.m_lock)
-                    if (!this.m_entryTable.ContainsKey(idData.Key.Value))
-                        this.m_entryTable.Add(idData.Key.Value, new CacheEntry(DateTime.Now, data as IdentifiedData));
+                this.m_entryTable.TryAdd(idData.Key.Value, new CacheEntry(DateTime.Now, data as IdentifiedData));
 
         }
 
@@ -182,10 +181,7 @@ namespace OpenIZ.Mobile.Core.Caching
 
             if (!key.HasValue) return;
 
-            CacheEntry candidate = null;
-            if (this.m_entryTable.TryGetValue(key.Value, out candidate))
-                lock (this.m_lock)
-                    this.m_entryTable.Remove(key.Value);
+            this.m_entryTable.TryRemove(key.Value, out CacheEntry candidate);
 
         }
 
@@ -248,8 +244,7 @@ namespace OpenIZ.Mobile.Core.Caching
                             {
                                 IEnumerable<Guid> gc = o as IEnumerable<Guid>;
                                 foreach (var g in gc.ToArray())
-                                    lock (this.m_lock)
-                                        this.m_entryTable.Remove(g);
+                                    this.m_entryTable.TryRemove(g, out CacheEntry toss);
                             }
                             catch { }
                         }, garbageBin);
@@ -298,8 +293,7 @@ namespace OpenIZ.Mobile.Core.Caching
                         {
                             IEnumerable<Guid> gc = o as IEnumerable<Guid>;
                             foreach (var g in gc.ToArray())
-                                lock (this.m_lock)
-                                    this.m_entryTable.Remove(g);
+                                this.m_entryTable.TryRemove(g, out CacheEntry toss);
                         }, garbageBin);
                     }
 
@@ -360,17 +354,14 @@ namespace OpenIZ.Mobile.Core.Caching
         /// <param name="data"></param>
         internal void RemoveRelated(IdentifiedData data)
         {
-            if(data is Entity)
+            if (data is Entity)
             {
-                lock (this.m_lock)
-                {
-                    var related = this.m_entryTable.ToDictionary(o => o.Key, o => o.Value).Where(o =>
-                        {
-                            return o.Value.Data is Entity entity && entity.Relationships.ToArray().Any(r => r.TargetEntityKey == data.Key);
-                        }).ToArray();
-                    foreach (var i in related)
-                        this.m_entryTable.Remove(i.Key);
-                }
+                var related = this.m_entryTable.ToDictionary(o => o.Key, o => o.Value).Where(o =>
+                    {
+                        return o.Value.Data is Entity entity && entity.Relationships.ToArray().Any(r => r.TargetEntityKey == data.Key);
+                    }).ToArray();
+                foreach (var i in related)
+                    this.m_entryTable.TryRemove(i.Key, out CacheEntry toss);
             }
         }
 

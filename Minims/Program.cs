@@ -103,18 +103,22 @@ namespace Minims
                     Console.ResetColor();
                 };
 
-                if (!MiniApplicationContext.Start(consoleArgs))
+                try
                 {
-                    MiniApplicationContext.StartTemporary(consoleArgs);
-                    // Forward
-                    Process pi = Process.Start("http://127.0.0.1:9200/org.openiz.core/views/settings/index.html");
-                }
-                else
-                {
-                    var appletConfig = XamarinApplicationContext.Current.Configuration.GetSection<AppletConfigurationSection>();
-                    Process pi = Process.Start("http://127.0.0.1:9200/org.openiz.core/index.html#/");
+                    if (!MiniApplicationContext.Start(consoleArgs))
+                    {
+                        MiniApplicationContext.StartTemporary(consoleArgs);
+                        // Forward
+                        Process pi = Process.Start("http://127.0.0.1:9200/org.openiz.core/views/settings/index.html");
+                    }
+                    else
+                    {
+                        var appletConfig = XamarinApplicationContext.Current.Configuration.GetSection<AppletConfigurationSection>();
+                        Process pi = Process.Start("http://127.0.0.1:9200/org.openiz.core/index.html#/");
 
+                    }
                 }
+                catch { }
                 Console.WriteLine("Press [Enter] key to close...");
                 Console.ReadLine();
             }
