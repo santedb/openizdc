@@ -126,7 +126,7 @@ namespace OpenIZ.Mobile.Core.Android
             { // load configuration
                 try
                 {
-                   
+
                     // Set master application context
                     ApplicationContext.Current = retVal;
                     retVal.CurrentActivity = launcherActivity;
@@ -137,7 +137,7 @@ namespace OpenIZ.Mobile.Core.Android
                     }
                     catch
                     {
-                        if (retVal.ConfigurationManager.HasBackup() && 
+                        if (retVal.ConfigurationManager.HasBackup() &&
                             retVal.Confirm(Strings.err_configuration_invalid_restore_prompt))
                         {
                             retVal.ConfigurationManager.Restore();
@@ -154,19 +154,19 @@ namespace OpenIZ.Mobile.Core.Android
                     // Is there a backup, and if so, does the user want to restore from that backup?
                     var backupSvc = retVal.GetService<IBackupService>();
                     if (backupSvc.HasBackup(BackupMedia.Public) &&
-                        retVal.Configuration.GetAppSetting("ignore.restore") == null &&
-                        retVal.Confirm(Strings.locale_confirm_restore))
+                        retVal.Configuration.GetAppSetting("ignore.restore") == null)
                     {
-                        backupSvc.Restore(BackupMedia.Public);
+                        if (retVal.Confirm(Strings.locale_confirm_restore))
+                            backupSvc.Restore(BackupMedia.Public);
+                        else if (!retVal.Configuration.GetSection<ApplicationConfigurationSection>().AppSettings.Any(o => o.Key == "ignore.restore"))
+                            retVal.Configuration.GetSection<ApplicationConfigurationSection>().AppSettings.Add(new AppSettingKeyValuePair()
+                            {
+                                Key = "ignore.restore",
+                                Value = "true"
+                            });
                     }
 
-                    // Ignore restoration
-                    if(!retVal.Configuration.GetSection<ApplicationConfigurationSection>().AppSettings.Any(o=>o.Key == "ignore.restore"))
-                        retVal.Configuration.GetSection<ApplicationConfigurationSection>().AppSettings.Add(new AppSettingKeyValuePair()
-                        {
-                            Key = "ignore.restore",
-                            Value = "true"
-                        });
+
 
                     // HACK: For some reason the PCL doesn't do this automagically
                     //var connectionString = retVal.Configuration.GetConnectionString("openIzWarehouse");
@@ -212,14 +212,14 @@ namespace OpenIZ.Mobile.Core.Android
                                 appletManager.LoadApplet(manifest);
                             }
                         }
-                        catch(AppDomainUnloadedException) { throw; }
+                        catch (AppDomainUnloadedException) { throw; }
                         catch (Exception e)
                         {
                             retVal.m_tracer.TraceError("Applet Load Error: {0}", e);
                             if (retVal.Confirm(String.Format(Strings.err_applet_corrupt_reinstall, appletInfo.Id)))
                             {
                                 String appletPath = Path.Combine(retVal.Configuration.GetSection<AppletConfigurationSection>().AppletDirectory, appletInfo.Id);
-                                if (File.Exists(appletPath)) 
+                                if (File.Exists(appletPath))
                                     File.Delete(appletPath);
                             }
                             else
@@ -282,12 +282,12 @@ namespace OpenIZ.Mobile.Core.Android
                     }
 
                     // Is there a backup manager? If no then we will use the default backup manager
-                    
+
 
                     // Start daemons
                     ApplicationContext.Current.GetService<IUpdateManager>().AutoUpdate();
                     retVal.GetService<IThreadPoolService>().QueueNonPooledWorkItem(o => { retVal.Start(); }, null);
-                    
+
                     // Set the tracer writers for the PCL goodness!
                     foreach (var itm in retVal.Configuration.GetSection<DiagnosticsConfigurationSection>().TraceWriter)
                         OpenIZ.Core.Diagnostics.Tracer.AddWriter(itm.TraceWriter, itm.Filter);
@@ -352,13 +352,13 @@ namespace OpenIZ.Mobile.Core.Android
                 return false;
             }
         }
-        
+
         /// <summary>
         /// Save the configuration
         /// </summary>
         public override void SaveConfiguration()
         {
-            if(this.m_configurationManager.IsConfigured)
+            if (this.m_configurationManager.IsConfigured)
                 this.m_configurationManager.Save();
         }
 
@@ -477,10 +477,10 @@ namespace OpenIZ.Mobile.Core.Android
         /// </summary>
         public override void ShowToast(String message)
         {
-	        if (Looper.MyLooper() == null)
-	        {
-		        Looper.Prepare();
-	        }
+            if (Looper.MyLooper() == null)
+            {
+                Looper.Prepare();
+            }
 
             A.Widget.Toast.MakeText(this.CurrentActivity, message, A.Widget.ToastLength.Long);
         }

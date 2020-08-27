@@ -215,7 +215,7 @@ namespace OpenIZ.Mobile.Core.Services.Impl
 
                 var diff = ApplicationContext.Current.GetService<IPatchService>().Diff(old, this.Get<TEntity>(data.Key.Value, Guid.Empty), "participation");
 
-                SynchronizationQueue.Outbound.Enqueue(diff, DataOperationType.Update);
+                SynchronizationQueue.Outbound.Enqueue(data, DataOperationType.Update);
 
                 this.DataUpdated?.Invoke(this, new AuditDataEventArgs(data));
             }

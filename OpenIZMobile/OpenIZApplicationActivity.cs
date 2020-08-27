@@ -77,7 +77,7 @@ namespace OpenIZMobile
                 }
                 this.RequestPermissions(new string[] { permissionString }, 0);
                 this.m_permissionEvent.WaitOne();
-                return this.CheckSelfPermission(Android.Manifest.Permission.AccessCoarseLocation) == (int)Permission.Granted;
+                return this.CheckSelfPermission(permissionString) == (int)Permission.Granted;
             }
         }
 
