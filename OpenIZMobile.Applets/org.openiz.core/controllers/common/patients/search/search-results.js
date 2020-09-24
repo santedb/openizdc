@@ -179,8 +179,7 @@ angular.module('layout').controller('SearchResultsController', ['$scope', functi
                 //updateResultEncounters();
             },
             onException: function (e) {
-                OpenIZ.App.toast(e.message);
-                if(onError) onError(e);
+                OpenIZ.App.showErrorDialog(e);
             },
             finally: function () {
                 scope.search.isSearching = false;
@@ -228,7 +227,7 @@ angular.module('layout').controller('SearchResultsController', ['$scope', functi
                 //updateResultEncounters();
             },
             onException: function (e) {
-                OpenIZ.App.toast(e.message);
+                OpenIZ.App.showErrorDialog(e);
             },
             finally: function () {
                 scope.search.isSearching = false;
@@ -264,7 +263,7 @@ angular.module('layout').controller('SearchResultsController', ['$scope', functi
                 //updateResultEncounters();
             },
             onException: function (e) {
-                OpenIZ.App.toast(e.message);
+                OpenIZ.App.showErrorDialog(e);
             },
             finally: function () {
                 scope.search.isSearching = false;
@@ -299,7 +298,7 @@ angular.module('layout').controller('SearchResultsController', ['$scope', functi
                 window.scrollTo(0, 0);
             },
             onException: function (e) {
-                OpenIZ.App.toast(e.message);
+                OpenIZ.App.showErrorDialog(e);
             },
             finally: function () {
                 scope.search.isSearching = false;

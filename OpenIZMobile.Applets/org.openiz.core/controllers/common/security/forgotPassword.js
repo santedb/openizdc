@@ -56,7 +56,8 @@ angular.module('layout').controller('ForgotPasswordController', ['$scope', '$win
             $scope.$apply();
         },
         onException: function (ex) {
-            OpenIZ.App.toast(ex.message || ex);
+            OpenIZ.App.showErrorDialog(ex);
+
         }
     });
 
@@ -161,11 +162,8 @@ angular.module('layout').controller('ForgotPasswordController', ['$scope', '$win
                 },
                 onException: function (exception) {
                     OpenIZ.App.toast(OpenIZ.Localization.getString("locale.forgotPassword.error.invalidCode"));
-                    if (exception.message) {
-                        alert(OpenIZ.Localization.getString(exception.message));
-                    }
-                    else
-                        console.log(exception.message || exception);
+                    OpenIZ.App.showErrorDialog(exception);
+
                 },
                 finally: function () {
                 }
@@ -188,11 +186,8 @@ angular.module('layout').controller('ForgotPasswordController', ['$scope', '$win
             },
             onException: function (ex) {
                 OpenIZ.App.toast(OpenIZ.Localization.getString("locale.forgotPassword.error.validation"));
-                if (exception.message) {
-                    alert(OpenIZ.Localization.getString(exception.message));
-                }
-                else
-                    console.log(ex.message || ex);
+                OpenIZ.App.showErrorDialog(ex);
+
             },
             finally: function () {
                 OpenIZ.App.hideWait();
@@ -232,11 +227,8 @@ angular.module('layout').controller('ForgotPasswordController', ['$scope', '$win
                         $window.location.reload();
                     },
                     onException: function (exception) {
-                        if (exception.message) {
-                            alert(OpenIZ.Localization.getString(exception.message));
-                        }
-                        else
-                            console.log(exception.message || exception);
+                        OpenIZ.App.showErrorDialog(exception);
+
                     },
                     finally: function () {
                         $("#forgotPasswordWizard").modal("hide");
@@ -246,11 +238,8 @@ angular.module('layout').controller('ForgotPasswordController', ['$scope', '$win
             },
             onException: function (exception) {
                 OpenIZ.App.hideWait('#submitButton');
-                if (exception.message) {
-                    alert(OpenIZ.Localization.getString(exception.message));
-                }
-                else
-                    console.log(exception.message || exception);
+                OpenIZ.App.showErrorDialog(exception);
+
             },
             finally: function () {
                 OpenIZ.App.hideWait('#submitButton');

@@ -39,7 +39,8 @@ angular.module('layout').controller("DatabaseController", ["$scope", function ($
                 },
                 onException: function (ex) {
                     if(ex.type != "PolicyViolationException")
-                        alert(ex.message);
+                        OpenIZ.App.showErrorDialog(ex);
+
                 },
                 finally: function () {
                     OpenIZ.App.hideWait("#compactButton");
@@ -74,7 +75,8 @@ angular.module('layout').controller("DatabaseController", ["$scope", function ($
                 },
                 onException: function (ex) {
                     if (ex.type != "PolicyViolationException")
-                        alert(ex.message || ex);
+                        OpenIZ.App.showErrorDialog(ex);
+
                 }
             });
         };
@@ -104,7 +106,8 @@ angular.module('layout').controller("DatabaseController", ["$scope", function ($
                 },
                 onException: function (ex) {
                     if (ex.type != "PolicyViolationException")
-                        alert(ex.message || ex);
+                        OpenIZ.App.showErrorDialog(ex);
+
                 }
             });
         };
@@ -135,7 +138,8 @@ angular.module('layout').controller("DatabaseController", ["$scope", function ($
                 },
                 onException: function (ex) {
                     if (ex.type != "PolicyViolationException")
-                        alert(ex.message || ex);
+                        OpenIZ.App.showErrorDialog(ex);
+
                 }
             });
         };

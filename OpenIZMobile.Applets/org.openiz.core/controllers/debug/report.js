@@ -57,10 +57,7 @@ angular.module('layout').controller('ReportBugController', ['$scope', '$rootScop
                 $scope.$apply();
             },
             onException: function (error) {
-                if (error.message)
-                    console.log(error.message);
-                else
-                    console.log(error);
+                OpenIZ.App.showErrorDialog(error);
             },
             finally: function () {
                 OpenIZ.App.hideWait('#submitBugButton');

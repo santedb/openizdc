@@ -60,11 +60,7 @@ angular.module('layout').controller('UserPasswordController', ['$scope', '$rootS
                                 $scope.$apply();
                             },
                             onException: function (ex) {
-                                if (ex.message != null)
-                                    console.log(ex.message);
-                                else
-                                    console.log(ex);
-
+                                OpenIZ.App.showErrorDialog(ex);
                                 OpenIZ.App.toast(OpenIZ.Localization.getString("locale.preferences.errors.changePasswordFailure"));
                             },
                             finally: function () {
@@ -75,10 +71,8 @@ angular.module('layout').controller('UserPasswordController', ['$scope', '$rootS
                     }
                 },
                 onException: function (ex) { // Some error with authentication
-                    if (ex.message != null)
-                        console.log(ex.message);
-                    else
-                        console.log(ex);
+                    
+                    OpenIZ.App.showErrorDialog(ex);
                     OpenIZ.App.toast(OpenIZ.Localization.getString("locale.preferences.errors.changePasswordFailure"));
                     OpenIZ.App.hideWait(); // We won't make it to the other finally :( 
                     OpenIZ.App.hideWait('#changePasswordButton');

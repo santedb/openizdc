@@ -53,10 +53,8 @@ angular.module('layout').controller('ReportListController', ['$scope', '$rootSco
             $scope.reports = data;
         },
         onException: function (ex) {
-            if (ex.message)
-                alert(OpenIZ.Localization.getString(ex.message));
-            else
-                console.error(ex);
+            OpenIZ.App.showErrorDialog(ex);
+
         },
         finally: function () {
             $scope.isLoading = false;
@@ -92,10 +90,8 @@ angular.module('layout').controller('ReportListController', ['$scope', '$rootSco
                 }
             },
             onException: function (ex) {
-                if (ex.message)
-                    alert(OpenIZ.Localization.getString(ex.message));
-                else
-                    console.error(ex);
+                OpenIZ.App.showErrorDialog(ex);
+
             },
             finally: function () {
                 $scope.isLoading = false;
@@ -139,7 +135,9 @@ angular.module('layout').controller('ReportListController', ['$scope', '$rootSco
             },
             onException: function (ex) {
                 $scope.reportBody = "<h2>" + OpenIZ.Localization.getString("locale.reports.nodata") + "</h2>";
-                alert(OpenIZ.Localization.getString("locale.reports.error.locked"));
+                OpenIZ.App.showErrorDialog({ message: OpenIZ.Localization.getString("locale.reports.error.locked"), type: "DataException" });
+                
+
             },
             finally: function () {
                 $scope.isLoading = false;

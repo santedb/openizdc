@@ -47,13 +47,8 @@ angular.module('layout').controller('ViewAlertController', ['$scope', '$statePar
                 onException: function (ex)
                 {
                     OpenIZ.App.hideWait();
+                    OpenIZ.App.showErrorDialog(ex);
 
-                    if (typeof (ex) == "string")
-                        console.log(ex);
-                    else if (ex.message != undefined)
-                        console.log("" + ex.message + " - " + ex.details);
-                    else
-                        console.log(ex);
                 },
                 continueWith: function (data)
                 {
@@ -83,7 +78,7 @@ angular.module('layout').controller('ViewAlertController', ['$scope', '$statePar
             },
             onException: function (ex)
             {
-                console.log(ex);
+                OpenIZ.App.showErrorDialog(ex);
                 OpenIZ.App.toast(OpenIZ.Localization.getString("locale.alert.updateUnsuccessful"));
             },
             finally: function ()
@@ -110,7 +105,7 @@ angular.module('layout').controller('ViewAlertController', ['$scope', '$statePar
             },
             onException: function (ex)
             {
-                console.log(ex);
+                OpenIZ.App.showErrorDialog(ex);
                 OpenIZ.App.toast(OpenIZ.Localization.getString("locale.alert.updateUnsuccessful"));
             },
             finally: function ()

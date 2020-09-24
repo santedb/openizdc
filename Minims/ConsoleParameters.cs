@@ -62,5 +62,12 @@ namespace Minims
         [Parameter("reset")]
         [Description("Deletes all configuration data restoring the MiniIMS to its default state")]
         public bool Reset { get; set; }
+
+        /// <summary>
+        /// Don't launch a browser
+        /// </summary>
+        [Parameter("no-launch")]
+        [Description("Do not launch a browser")]
+        public bool NoBrowser { get; set; }
     }
 }

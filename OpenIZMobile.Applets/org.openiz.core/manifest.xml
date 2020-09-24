@@ -452,6 +452,14 @@
     <string key="locale.openiz.info"><![CDATA[<h2>Welcome to OpenIZ Disconnected Client Core!</h2><p>You might be wondering where the Immunization Screens are, well that's easy, all you have to do is install an application with a startup asset and point this application at it! To get started implementing your own OpenIZ applets you can use the nifty template <a href="http://openizdctpl.codeplex.com/">here</a></p>]]></string>
     <!-- End Generic Confirmations -->
 
+    <!-- Errors -->
+    <string key="locale.error.general">General Error</string>
+    <string key="locale.error.cause">Caused Because of </string>
+    <string key="locale.error.rules">Business Rules Violated</string>
+    <string key="locale.action.close">Dismiss</string>
+    <string key="Exception">General Error</string>
+    <string key="DetectedIssueException">Business Rule Violation</string>
+    <string key="InvalidOperationException">Invalid Operation</string>
     <!-- Common Dialog -->
     <string key="locale.network.offline">Offline</string>
     <string key="locale.network.online">Online</string>

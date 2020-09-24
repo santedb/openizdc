@@ -64,14 +64,8 @@ angular.module('layout').controller('LoginPartController', ['$scope', '$window',
                     //OpenIZ.App.hideWait('#loginButton');
                     OpenIZ.App.hideWait('#loginButton');
 
-                if (typeof (ex) == "string")
-                    console.log(ex);
-                else if (ex.details && ex.message)
-                    alert(OpenIZ.Localization.getString(ex.message) + " - " + OpenIZ.Localization.getString(ex.details));
-                else if (ex.message)
-                    alert(OpenIZ.Localization.getString(ex.message));
-                else
-                    console.log(ex);
+                    OpenIZ.App.showErrorDialog(ex);
+
                 },
                 finally: function () {
                 }

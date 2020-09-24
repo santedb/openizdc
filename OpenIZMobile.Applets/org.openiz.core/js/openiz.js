@@ -63,7 +63,13 @@ var OpenIZApplicationService = window.OpenIZApplicationService || {};
  * @property {Object} urlParams the current session
  */
 var OpenIZ = OpenIZ || {
-
+    // Showdown - Markdown Rendering Utilities
+    showdown: null,
+    getShowdown: function () {
+        if (!OpenIZ.showdown)
+            OpenIZ.showdown = new showdown.Converter();
+        return OpenIZ.showdown;
+    },
     /** 
      * @summary URL Parameters
      */
@@ -1344,10 +1350,8 @@ var OpenIZ = OpenIZ || {
                             controlData.continueWith(data, controlData.state, jqr);
                         }
                         else
-                            controlData.onException(new OpenIZModel.Exception("Exception", "err_general",
-                                data,
-                                   null
-                            ), controlData.state, jqr);
+                            controlData.continueWith(data
+                            , controlData.state, jqr);
 
                     }
                     catch (e) {
@@ -2145,6 +2149,36 @@ var OpenIZ = OpenIZ || {
     * @memberof OpenIZ
     */
     App: {
+        /**
+         * @summary Shows a global error dialog
+         * @param {any} ex The exception to show the error dialog for
+         */
+        showErrorDialog: function (error) {
+
+            if (!error ||
+                error instanceof TypeError) return; // No error or a JS error
+
+            var scope = angular.element("#errorDialog").scope();
+            scope.error = error;
+            scope.error.cause = [];
+            if (scope.error.details) {
+                scope.error.details = OpenIZ.getShowdown().makeHtml(scope.error.details);
+            }
+
+            // Business rules exception
+            var ex = error.caused_by;
+            while (ex) { // promot the rules
+                if (ex.rules)
+                    scope.error.rules = ex.rules; 
+                scope.error.cause.push(ex);
+                ex = ex.caused_by;
+            }
+
+            try { scope.$apply(); }
+            catch (e) { }
+            $("#errorDialog").modal({ 'backdrop': 'static' });
+
+        },
         // OpenIZ.Core.Model.Constants.DatePrecisionFormats, OpenIZ.Core.Model, Version=1.0.3.0, Culture=neutral, PublicKeyToken=null
         /**
          * @enum {String}

@@ -432,7 +432,8 @@ angular.module('layout').controller('EncounterEntryController', ['$scope', '$tim
             onException: function (ex) {
                 // HACK: Older versions of APK will report 404 we don't want that in our logs
                 if (!ex.details || ex.details != "Not Found" && ex.details.status != 404)
-                    console.log(ex);
+                    OpenIZ.App.showErrorDialog(ex);
+
             }
         });
     }

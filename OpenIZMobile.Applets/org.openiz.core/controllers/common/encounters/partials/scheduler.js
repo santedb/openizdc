@@ -94,10 +94,7 @@ angular.module('layout').controller('AppointmentSchedulerController', ['$scope',
                                 $scope.$apply();
                             },
                             onException: function (ex) {
-                                if (ex.message)
-                                    alert(ex.message);
-                                else
-                                    console.error(ex);
+                                OpenIZ.App.showErrorDialog(ex);
                             }
                         });
                     }
@@ -137,10 +134,7 @@ angular.module('layout').controller('AppointmentSchedulerController', ['$scope',
 
                 },
                 onException: function (ex) {
-                    if (ex.message)
-                        alert(ex.message);
-                    else
-                        console.error(ex);
+                    OpenIZ.App.showErrorDialog(ex);
                 }
             });
         }
@@ -304,10 +298,7 @@ angular.module('layout').controller('AppointmentSchedulerController', ['$scope',
 
                     },
                     onException: function (ex) {
-                        if (ex.message)
-                            alert(ex.message);
-                        else
-                            console.error(ex);
+                        OpenIZ.App.showErrorDialog(ex);
                     },
                     finally: function () {
                         OpenIZ.App.hideWait('#saveAppointmentButton');

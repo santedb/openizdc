@@ -23,7 +23,10 @@ using System.Linq;
 using System.Text;
 
 using Newtonsoft.Json;
+using OpenIZ.BusinessRules.JavaScript;
 using OpenIZ.Core.Exceptions;
+using OpenIZ.Core.Services;
+using OpenIZ.Mobile.Core.Knowledgebase;
 
 namespace OpenIZ.Mobile.Core.Xamarin.Services.Model
 {
@@ -42,22 +45,44 @@ namespace OpenIZ.Mobile.Core.Xamarin.Services.Model
         /// Create error result from the specified excepion
         /// </summary>
         /// <param name="e"></param>
-        public ErrorResult(Exception e)
+        public ErrorResult(Exception e, bool useKb = true)
         {
-            Error = e.Message;
-            ErrorType = e.GetType().Name;
-            if (e.InnerException != null)
-                InnerError = new ErrorResult(e.InnerException);
-            if(e is DetectedIssueException)
+
+            var kbService = ApplicationContext.Current.GetService<IKnowledgeBaseService>();
+            var kbEntry = kbService.GetEntry(e);
+
+            if (kbEntry != null && useKb)
             {
-                this.ErrorDescription = String.Join(";", (e as DetectedIssueException).Issues.Select(o => o.Text));
+                this.Error = kbEntry.Message;
+                this.ErrorDescription = kbEntry.Resolution;
+                this.Classification = kbEntry.Type.ToString();
+                this.InnerError = new ErrorResult(e, false);
+            }
+            else
+            {
+                Error = e.Message;
+                ErrorType = e.GetType().Name;
+                if (e.InnerException != null)
+                    InnerError = new ErrorResult(e.InnerException, false);
+                if (e is DetectedIssueException dee)
+                {
+                    this.Rules = dee.Issues;
+                }
             }
         }
 
+        [JsonProperty("rules")]
+        public List<DetectedIssue> Rules { get; set; }
+
+        [JsonProperty("classification")]
+        public String Classification { get; set; }
+
         [JsonProperty("type")]
         public String ErrorType { get; set; }
+
         [JsonProperty("error")]
 		public String Error { get; set; }
+
 		[JsonProperty("error_description")]
 		public String ErrorDescription { get; set; }
 

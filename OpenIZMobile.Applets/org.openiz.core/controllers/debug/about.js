@@ -106,7 +106,7 @@ angular.module('layout').controller('AboutApplicationController', ['$scope', '$r
                     },
                     onException: function (e) {
                         if (e.type != "PolicyViolationException" && e.message)
-                            alert(e.message);
+                            OpenIZ.App.showErrorDialog(e);
                         else
                             console.error(e);
                     },

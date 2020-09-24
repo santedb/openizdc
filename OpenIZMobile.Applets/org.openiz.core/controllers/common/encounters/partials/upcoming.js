@@ -79,10 +79,8 @@ angular.module('layout').controller('UpcomingAppointmentController', ['$scope', 
                 onException: function (ex) {
                     if (ex.type === "FileNotFoundException")
                         ;
-                    else if (ex.message)
-                        alert(ex.message);
-                    else
-                        console.error(ex);
+                    else OpenIZ.App.showErrorDialog(ex);
+
                 }
             });
         }

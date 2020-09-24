@@ -59,12 +59,8 @@ angular.module('layout').controller('AuthenticationDialogController', ['$scope',
             },
             onException: function(error) {
                 OpenIZ.App.hideWait('#loginButton');
-                if (error.error != null)
-                    alert(OpenIZ.Localization.getString(error.error));
-                else if(error.message != null)
-                    alert(OpenIZ.Localization.getString(error.message));
-                else
-                    console.log(error);
+                OpenIZ.App.showErrorDialog(error);
+
             }
         })
     }

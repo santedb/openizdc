@@ -5,7 +5,7 @@
 #define MyAppPublisher "Mohawk College of Applied Arts and Technology"
 #define MyAppURL "http://openiz.org"
 #define MyAppExeName "DisconnectedClient.exe"
-
+#define MyAppVersion "1.10"
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
 ; Do not use the same AppId value in installers for other applications.
@@ -25,6 +25,8 @@ OutputDir=.\dist
 OutputBaseFilename=openizdc-{#MyAppVersion}
 Compression=lzma
 SolidCompression=yes
+SignedUninstaller=yes
+SignTool=default sign /a /n $qFyfe Software$q /d $qOpenIZ Disconnected Client$q $f
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"

@@ -49,10 +49,7 @@ angular.module('layout').controller('SyncCentreController', ['$scope', '$state',
         OpenIZ.App.showWait("#forceSync");
         OpenIZ.Queue.forceResyncAsync({
             onException: function(ex) {
-                if (ex.message)
-                    alert(OpenIZ.Localization.getString(ex.message));
-                else
-                    console.error(ex);
+                OpenIZ.App.showErrorDialog(ex);
             },
             finally: function () {
                 OpenIZ.App.hideWait("#forceSync");
@@ -126,10 +123,7 @@ angular.module('layout').controller('SyncCentreController', ['$scope', '$state',
 
             },
             onException: function (ex) {
-                if (ex.message)
-                    alert(OpenIZ.Localization.getString(ex.message));
-                else
-                    console.error(ex);
+                OpenIZ.App.showErrorDialog(ex);
             },
             finally: function () {
                 try {
@@ -158,11 +152,8 @@ angular.module('layout').controller('SyncCentreController', ['$scope', '$state',
                 OpenIZ.App.hideWait("#reQueueDeadModal");
             },
             onException: function (ex) {
-                if (ex.message)
-                    alert(OpenIZ.Localization.getString(ex.message));
-                else
-                    console.error(ex);
-                OpenIZ.App.hideWait("#reQueueDead")
+                OpenIZ.App.showErrorDialog(ex);
+                OpenIZ.App.hideWait("#reQueueDead");
                 OpenIZ.App.hideWait("#reQueueDeadModal");
 
             }
@@ -191,10 +182,7 @@ angular.module('layout').controller('SyncCentreController', ['$scope', '$state',
                 refreshQueueState(true);
             },
             onException: function (ex) {
-                if (ex.message)
-                    alert(OpenIZ.Localization.getString(ex.message));
-                else
-                    console.error(ex);
+                OpenIZ.App.showErrorDialog(ex);
             },
             finally: function () {
                 OpenIZ.App.hideWait("#requeQueueItem");
@@ -222,10 +210,7 @@ angular.module('layout').controller('SyncCentreController', ['$scope', '$state',
                 },
                 onException: function (ex) {
                     if (ex.type == "PolicyViolationException") return; // allow override
-                    if (ex.message)
-                        alert(OpenIZ.Localization.getString(ex.message));
-                    else
-                        console.error(ex);
+                    OpenIZ.App.showErrorDialog(ex);
                 },
                 finally: function () {
                     OpenIZ.App.hideWait("#deleteQueueItem");
@@ -258,6 +243,6 @@ angular.module('layout').controller('SyncCentreController', ['$scope', '$state',
             $scope.about = d;
             $scope.$apply();
         }
-    })
+    });
 
 }]);

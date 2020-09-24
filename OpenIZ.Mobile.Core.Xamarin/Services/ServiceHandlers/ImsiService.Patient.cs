@@ -17,6 +17,7 @@
  * User: justi
  * Date: 2018-7-7
  */
+using OpenIZ.Core.Exceptions;
 using OpenIZ.Core.Model;
 using OpenIZ.Core.Model.Acts;
 using OpenIZ.Core.Model.Collection;
@@ -91,6 +92,9 @@ namespace OpenIZ.Mobile.Core.Xamarin.Services.ServiceHandlers
         [return: RestMessage(RestMessageFormat.SimpleJson)]
         public IdentifiedData GetPatient()
         {
+
+            throw new Exception("This is just a test exception to make sure that the new error dialog works");
+
             var search = NameValueCollection.ParseQueryString(MiniImsServer.CurrentContext.Request.Url.Query);
             var patientService = ApplicationContext.Current.GetService<IPatientRepositoryService>();
             var integrationService = ApplicationContext.Current.GetService<IClinicalIntegrationService>();

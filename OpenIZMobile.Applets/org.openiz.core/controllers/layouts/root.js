@@ -155,7 +155,7 @@ var layoutApp = angular.module('layout', ['openiz', 'ngSanitize', 'ui.router', '
                             $rootScope.session = s;
                         },
                         onException: function (e) {
-                            console.error(e);
+                            OpenIZ.App.showErrorDialog(e);
                         }
                     });
                 }
@@ -215,8 +215,7 @@ var layoutApp = angular.module('layout', ['openiz', 'ngSanitize', 'ui.router', '
                                         $rootScope.session = s;
                                     },
                                     onException: function (e) {
-                                        if (e.message) OpenIZ.App.toast(e.message);
-                                        else console.error(e);
+                                        OpenIZ.App.showErrorDialog(e);
                                     }
                                 });
                                 $rootScope.extendToast = null;
@@ -265,12 +264,16 @@ var layoutApp = angular.module('layout', ['openiz', 'ngSanitize', 'ui.router', '
                                 }
                                 $rootScope.$apply();
                             },
-                            onException: function (ex) { console.error(ex); }
+                            onException: function (ex) {
+                                if (ex.type != "PolicyViolationException")
+                                    OpenIZ.App.showErrorDialog(ex);
+                            }
                         });
                         $rootScope.$apply();
                     },
                     onException: function (ex) {
-                        console.error(ex);
+                        OpenIZ.App.showErrorDialog(ex);
+
                     }
                 });
             };
@@ -297,7 +300,8 @@ var layoutApp = angular.module('layout', ['openiz', 'ngSanitize', 'ui.router', '
                             }
                         },
                         onException: function (ex) {
-                            console.error(ex);
+                            OpenIZ.App.showErrorDialog(ex);
+
                         }
                     });
 
