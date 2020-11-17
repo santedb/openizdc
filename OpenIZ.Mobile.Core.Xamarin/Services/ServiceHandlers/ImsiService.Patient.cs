@@ -93,8 +93,6 @@ namespace OpenIZ.Mobile.Core.Xamarin.Services.ServiceHandlers
         public IdentifiedData GetPatient()
         {
 
-            throw new Exception("This is just a test exception to make sure that the new error dialog works");
-
             var search = NameValueCollection.ParseQueryString(MiniImsServer.CurrentContext.Request.Url.Query);
             var patientService = ApplicationContext.Current.GetService<IPatientRepositoryService>();
             var integrationService = ApplicationContext.Current.GetService<IClinicalIntegrationService>();
@@ -140,6 +138,14 @@ namespace OpenIZ.Mobile.Core.Xamarin.Services.ServiceHandlers
                     this.m_tracer.TraceVerbose("Freetext search: {0}", MiniImsServer.CurrentContext.Request.Url.Query);
 
                     var values = search.ContainsKey("any") ? search["any"] : search["any[]"];
+
+                    if (values.Contains("crash"))
+                        throw new Exception("This is an outer exception test", new DetectedIssueException(new List<DetectedIssue>()
+                        {
+                            new DetectedIssue() { Text = "This is a sample rule that was violated" , Priority = DetectedIssuePriorityType.Error },
+                            new DetectedIssue() { Text = "This is another sample rule", Priority = DetectedIssuePriorityType.Warning },
+                            new DetectedIssue() { Text = "And another business rule that was violated", Priority = DetectedIssuePriorityType.Informational }
+                        }, "This is the overall exception description for business rules", new InvalidOperationException("This is a sample root cause")));
 
                     // Filtes
                     if (search.ContainsKey("_onlineOnly"))

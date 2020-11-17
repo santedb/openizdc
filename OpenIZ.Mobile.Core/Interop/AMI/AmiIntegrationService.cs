@@ -305,5 +305,27 @@ namespace OpenIZ.Mobile.Core.Interop.AMI
 			    throw;
 		    }
 		}
+
+        /// <summary>
+        /// PErform a HEAD operation
+        /// </summary>
+        public bool Exists<TModel>(Guid key)
+        {
+            try
+            {
+                var client = new AmiServiceClient(ApplicationContext.Current.GetRestClient("ami"));
+                client.Client.Responding += (o, e) => this.Responding?.Invoke(o, e);
+                client.Client.Credentials = this.GetCredentials(client.Client);
+                if (client.Client.Credentials == null) return false;
+
+                this.m_tracer.TraceVerbose("Performing IMSI HEAD ({0}):{1}", typeof(TModel).FullName, key);
+                var retVal = client.Client.Head($"{typeof(TModel).Name}/{key}");
+                return retVal.ContainsKey("ETag");
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
     }
 }

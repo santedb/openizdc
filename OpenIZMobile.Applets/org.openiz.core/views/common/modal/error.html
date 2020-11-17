@@ -22,7 +22,7 @@
                             <h5>{{ 'locale.error.rules' | translate }}</h5>
                             <ul>
                                 <li ng-repeat="rule in error.rules track by $index">
-                                    {{ rule.text }} <span class="label" ng-class="{ 'label-warning': rule.priority == 'Warning' , 'label-danger' : rule.priority == 'Error', 'label-info' : rule.priority == 'Informational' }">{{rule.priority}}</span>
+                                    {{ rule.text | translate }} <span class="label" ng-class="{ 'label-warning': rule.priority == 'Warning' , 'label-danger' : rule.priority == 'Error', 'label-info' : rule.priority == 'Informational' }">{{rule.priority}}</span>
                                 </li>
                             </ul>
                         </div>

@@ -58,10 +58,36 @@
     <property name="item" all="true"/>
   </type>
 
+  <type type="Entity" all="true">
+    <property name="id"/>
+    <property name="classConceptModel" behavior="never"/>
+    <property name="previousVersionModel" behavior="never"/>
+    <property name="determinerConceptModel" behavior="never"/>
+    <property name="typeConceptModel" behavior="always" ref="Concept"/>
+    <property name="name" all="true" ref="EntityName" behavior="always"/>
+    <property name="sequence" behavior="always" />
+    <property name="relationship" all="true" behavior="always">
+      <property name="*" all="false">
+        <property name="source"/>
+        <property name="target" />
+        <property name="quantity" />
+        <property name="relationshipType"/>
+      </property>
+    </property>
+    <property name="participation" all="false" behavior="always">
+      <property name="*" all="false">
+        <property name="player"/>
+        <property name="act"/>
+        <property name="quantity"/>
+        <property name="participationRole"/>
+      </property>
+    </property>
+  </type>
+  
   <!-- Concepts -->
   <type type="Concept" all="false">
     <property name="name" behavior="always" all="true"/>
-    <property name="mnemonic"/>
+    <property name="mnemonic" behavior="always"/>
     <property name="id"/>
   </type>
   <type type="EntityNameComponent" all="false">

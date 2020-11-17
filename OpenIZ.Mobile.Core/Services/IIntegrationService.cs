@@ -104,6 +104,12 @@ namespace OpenIZ.Mobile.Core.Services
 		/// <param name="data">The data to be updated.</param>
         /// <param name="forceUpdate">When true, indicates that update should not do a safety check</param>
 		void Update(IdentifiedData data, bool forceUpdate = false);
+
+        /// <summary>
+        /// REturns true if the object exists
+        /// </summary>
+        bool Exists<T>(Guid id);
+
     }
 
     /// <summary>
@@ -111,7 +117,6 @@ namespace OpenIZ.Mobile.Core.Services
     /// </summary>
     public interface IClinicalIntegrationService : IIntegrationService
     {
-
     }
 
     /// <summary>

@@ -360,7 +360,9 @@ namespace DisconnectedClient.Core
                     }
 
                     // Start daemons
-                    retVal.GetService<IThreadPoolService>().QueueUserWorkItem(o => { retVal.Start(); });
+                    retVal.GetService<IThreadPoolService>().QueueUserWorkItem(o => { 
+                        retVal.Start(); 
+                    });
 
                     //retVal.Start();
 

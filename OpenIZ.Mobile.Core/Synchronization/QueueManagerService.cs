@@ -180,7 +180,7 @@ namespace OpenIZ.Mobile.Core.Synchronization
                             //    }
                             //}
                             //else
-                                this.ImportElement(dpe);
+                            this.ImportElement(dpe);
                         }
                         catch (Exception e)
                         {
@@ -253,7 +253,7 @@ namespace OpenIZ.Mobile.Core.Synchronization
                 while (SynchronizationQueue.Admin.Count() > 0)
                 {
 
-                    
+
                     // Exhaust the outbound queue
                     // Is there more than one item on the queue?
                     var syncItm = SynchronizationQueue.Admin.PeekRaw();
@@ -360,24 +360,34 @@ namespace OpenIZ.Mobile.Core.Synchronization
         }
 
         private Dictionary<String, Guid> m_templateCorrection = new Dictionary<string, Guid>();
-        
+
         /// <summary>
         /// Map local template to server template key
         /// </summary>
         private Guid MapServerTemplateKey(IIntegrationService integrationService, TemplateDefinition localDefinition)
         {
+            if (localDefinition == null)
+                return Guid.Empty;
+            else if (integrationService == null)
+                throw new ArgumentNullException("Integration service must be provided");
+
             // Attempt to correct template definition
             if (!m_templateCorrection.TryGetValue(localDefinition.Mnemonic, out Guid updated))
             {
+                this.m_tracer.TraceInfo("Will attempt to cross reference {0} to server template", localDefinition.Mnemonic);
+
                 var remoteTpl = integrationService.Find<TemplateDefinition>(o => o.Mnemonic == localDefinition.Mnemonic, 0, 1);
-                if (!remoteTpl.Item.Any())
+                if (remoteTpl.Item?.Any() != true)
                 {
+                    this.m_tracer.TraceInfo("Template {0} not on server, will create", localDefinition);
                     integrationService.Insert(localDefinition);
                     return localDefinition.Key.Value;
                 }
                 else
                 {
+                    this.m_tracer.TraceInfo("Found template {0} on server (local: {1})", remoteTpl.Item.First(), localDefinition);
                     updated = remoteTpl.Item.First().Key.Value;
+                    this.m_tracer.TraceVerbose("Adding template to cache");
                     m_templateCorrection.Add(localDefinition.Mnemonic, updated);
                     return updated;
                 }
@@ -391,7 +401,7 @@ namespace OpenIZ.Mobile.Core.Synchronization
         /// </summary>
         public void ExhaustOutboundQueue()
         {
-           
+
             bool locked = false;
             try
             {
@@ -423,48 +433,35 @@ namespace OpenIZ.Mobile.Core.Synchronization
                         // Reconstitute bundle
                         var bundle = dpe as Bundle;
 
-                        if (bundle != null && syncItm.IsRetry)
-                        {
-                            bundle.Item = bundle?.Item.OfType<IdentifiedData>().ToList();
-                            this.m_tracer.TraceInfo("RETRY: Will try with all available data");
-                            // Try to grab all references in the bundle
-                            foreach (var itm in bundle.Item.OfType<Act>().ToList())
-                            {
-                                foreach (var ptcpt in itm.Participations.ToList())
-                                    if (!bundle.Item.Any(i => i.Key == ptcpt.PlayerEntityKey))
-                                    {
-                                        var loadedItm = ptcpt.LoadProperty<Entity>(nameof(ActParticipation.PlayerEntity));
-                                        if (loadedItm != null)
-                                            bundle.Item.Add(loadedItm);
-                                    }
-                            }
-                            foreach (var itm in bundle.Item.OfType<Patient>().ToList())
-                            {
-                                foreach (var rel in itm.Relationships.ToList())
-                                    if (!bundle.Item.Any(i => i.Key == rel.TargetEntityKey))
-                                    {
-                                        var loadedItm = rel.LoadProperty<Entity>(nameof(EntityRelationship.TargetEntity));
-                                        if (loadedItm != null)
-                                            bundle.Item.Add(loadedItm);
-                                    }
-                            }
-                        }
-
+                        if (syncItm.IsRetry)
+                            dpe = this.BundleObjects(dpe, integrationService);
 
                         if (dpe is Entity entity && entity.TemplateKey.HasValue)
+                        {
                             entity.TemplateKey = this.MapServerTemplateKey(integrationService, entity.LoadProperty<TemplateDefinition>(nameof(entity.Template)));
+
+                        }
                         else if (dpe is Act act && act.TemplateKey.HasValue)
+                        {
                             act.TemplateKey = this.MapServerTemplateKey(integrationService, act.LoadProperty<TemplateDefinition>(nameof(act.Template)));
+
+                        }
                         else if (bundle != null)
                         {
-                            foreach (var itm in bundle.Item)
+                            foreach (var itm in bundle.Item.ToArray())
                             {
                                 if (itm is TemplateDefinition)
                                     this.MapServerTemplateKey(integrationService, itm as TemplateDefinition);
                                 else if (itm is Entity bEntity && bEntity.TemplateKey.HasValue)
+                                {
+
                                     bEntity.TemplateKey = this.MapServerTemplateKey(integrationService, bEntity.LoadProperty<TemplateDefinition>(nameof(entity.Template)));
+                                }
                                 else if (itm is Act bAct && bAct.TemplateKey.HasValue)
+                                {
+
                                     bAct.TemplateKey = this.MapServerTemplateKey(integrationService, bAct.LoadProperty<TemplateDefinition>(nameof(act.Template)));
+                                }
                             }
                         }
 
@@ -546,7 +543,8 @@ namespace OpenIZ.Mobile.Core.Synchronization
                             SynchronizationQueue.Outbound.UpdateRaw(syncItm);
                         }
                     }
-                    catch (FileNotFoundException) {
+                    catch (FileNotFoundException)
+                    {
                         SynchronizationQueue.Outbound.DequeueRaw();
                         throw;
 
@@ -572,6 +570,61 @@ namespace OpenIZ.Mobile.Core.Synchronization
             }
         }
 
+        private IdentifiedData BundleObjects(IdentifiedData data, IClinicalIntegrationService integrationService, Bundle currentBundle = null)
+        {
+            // Bundle establishment
+            currentBundle = currentBundle ?? new Bundle();
+            if (data is Bundle dataBundle)
+                currentBundle.Item.AddRange(dataBundle.Item.OfType<IdentifiedData>());
+
+            if (data is Person entity) // Fix entity key
+            {
+                foreach (var rel in entity.Relationships.OfType<EntityRelationship>())
+                    if (!currentBundle.Item.Any(i => i.Key == rel.TargetEntityKey))
+                    {
+                        var loaded = rel.LoadProperty<Entity>(nameof(EntityRelationship.TargetEntity));
+                        if (loaded != null)
+                        {
+                            currentBundle.Item.Insert(0, loaded);
+                            this.BundleObjects(loaded, integrationService, currentBundle); // cascade load
+                        }
+                    }
+
+            }
+            else if (data is Act act)
+            {
+                foreach (var rel in act.Relationships.OfType<ActRelationship>())
+                    if (!currentBundle.Item.Any(i => i.Key == rel.TargetActKey))
+                    {
+                        var loaded = rel.LoadProperty<Act>(nameof(ActRelationship.TargetAct));
+                        if (loaded != null)
+                        {
+                            currentBundle.Item.Insert(0, loaded);
+                            this.BundleObjects(loaded, integrationService, currentBundle);
+                        }
+                    }
+                foreach (var rel in act.Participations.OfType<ActParticipation>())
+                    if (!currentBundle.Item.Any(i => i.Key == rel.PlayerEntityKey))
+                    {
+                        var loaded = rel.LoadProperty<Entity>(nameof(ActParticipation.PlayerEntity));
+                        if (loaded != null)
+                        {
+                            currentBundle.Item.Insert(0, loaded);
+                            this.BundleObjects(loaded, integrationService, currentBundle);
+                        }
+                    }
+            }
+            else if (data is Bundle bundle)
+            {
+                foreach (var itm in bundle.Item.OfType<IdentifiedData>().ToArray())
+                {
+                        this.BundleObjects(itm, integrationService, currentBundle);
+                }
+            }
+
+            return currentBundle;
+        }
+
         /// <summary>
         /// Import element
         /// </summary>
@@ -583,10 +636,10 @@ namespace OpenIZ.Mobile.Core.Synchronization
             {
                 IdentifiedData existing = null;
                 // Is this a place and are there extensions that prevent insertion?
-                if(data is Bundle bundle)
+                if (data is Bundle bundle)
                 {
                     // Corrections to inbound data - 
-                    foreach(var itm in bundle.Item)
+                    foreach (var itm in bundle.Item)
                     {
                         if (itm is Place place && place.ClassConceptKey == EntityClassKeys.ServiceDeliveryLocation &&
                             !this.m_configuration.Facilities.Contains(place.Key.ToString()))

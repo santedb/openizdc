@@ -391,7 +391,7 @@ namespace OpenIZ.Mobile.Core.Synchronization
                 try
                 {
                     using (conn.Lock())
-                        return conn.Get<TQueueEntry>(id);
+                        return conn.Table<TQueueEntry>().Where(o=>o.Id == id).FirstOrDefault();
                 }
                 catch (Exception e)
                 {

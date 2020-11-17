@@ -33,6 +33,7 @@ using OpenIZ.Mobile.Core.Resources;
 using System.Diagnostics;
 using SQLite.Net.Interop;
 using OpenIZ.Mobile.Core.Exceptions;
+using OpenIZ.Core.Model.Acts;
 
 namespace OpenIZ.Mobile.Core.Data.Persistence
 {
@@ -176,6 +177,8 @@ namespace OpenIZ.Mobile.Core.Data.Persistence
                 Stopwatch itmSw = new Stopwatch();
                 itmSw.Start();
 #endif
+                if (itm is ControlAct)
+                    continue;
                 var idp = typeof(IDataPersistenceService<>).MakeGenericType(new Type[] { itm.GetType() });
                 var svc = ApplicationContext.Current.GetService(idp);
                 if (svc == null) continue; // can't insert

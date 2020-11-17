@@ -2162,7 +2162,7 @@ var OpenIZ = OpenIZ || {
             scope.error = error;
             scope.error.cause = [];
             if (scope.error.details) {
-                scope.error.details = OpenIZ.getShowdown().makeHtml(scope.error.details);
+                scope.error.details = OpenIZ.getShowdown().makeHtml(OpenIZ.Localization.getString(scope.error.details));
             }
 
             // Business rules exception

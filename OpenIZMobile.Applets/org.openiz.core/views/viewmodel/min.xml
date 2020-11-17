@@ -156,7 +156,7 @@
     <property name="determinerConceptModel" behavior="never"/>
     <property name="determinerConcept" behavior="never"/>
     <property name="statusConceptModel" behavior="never"/>
-    <property name="typeConceptModel" behavior="always"/>
+    <property name="typeConceptModel" behavior="always" ref="Concept"/>
     <property name="relationship" all="true">
       <property name="*" all="true">
         <property name="targetModel" all="true">

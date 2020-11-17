@@ -118,7 +118,9 @@ namespace Minims
 
                     }
                 }
-                catch { }
+                catch(Exception e) {
+                    Console.WriteLine("FATAL: {0}", e);
+                }
                 Console.WriteLine("Press [Enter] key to close...");
                 Console.ReadLine();
             }

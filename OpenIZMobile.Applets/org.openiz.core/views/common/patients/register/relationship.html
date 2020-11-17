@@ -105,7 +105,7 @@
                 <p class="help-block text-danger ng-cloak" ng-show="editPatientForm.relationPhoneNumber.$error.pattern || editRelationshipForm.relationPhoneNumber.$error.pattern">{{ 'locale.patient.errors.phoneNumber' | i18n}}</p>
             </div>
         </div>
-        <div class="form-group">
+        <div class="form-group" ng-if="$root.session.scope.indexOf('2.25.30293928329282392') != -1">
             <label class="col-xs-3 control-label" for="relativeBirthplace">{{ 'locale.patient.relative.birthplace' | i18n }}</label>
             <div class="col-xs-9">
                 <select style="width: 100%; height: 100%"
@@ -121,7 +121,7 @@
                 </select>
             </div>
         </div>
-        <div class="form-group" ng-controller="DomicileLookupController">
+        <div class="form-group" ng-controller="DomicileLookupController" ng-if="$root.session.scope.indexOf('2.25.30293928329282392') != -1">
             <label class="col-xs-3 control-label" for="relativeVillage">
                 {{ 'locale.patient.relative.domicile' | i18n }} <span ng-if="motherUnknown">*</span>
             </label>

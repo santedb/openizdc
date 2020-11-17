@@ -157,7 +157,8 @@ namespace OpenIZ.Mobile.Core.Synchronization.Model
         /// </summary>
         public OutboundQueueEntry(DeadLetterQueueEntry retryEntry) : base(retryEntry)
         {
-            
+            this.IsRetry = true;
+
         }
         /// <summary>
         /// Indicates the fail count
@@ -234,7 +235,7 @@ namespace OpenIZ.Mobile.Core.Synchronization.Model
         /// </summary>
         public InboundQueueEntry(DeadLetterQueueEntry retryEntry) : base(retryEntry)
         {
-
+            this.IsRetry = true;
         }
 	}
 

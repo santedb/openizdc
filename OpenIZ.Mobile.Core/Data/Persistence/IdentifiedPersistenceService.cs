@@ -119,6 +119,7 @@ namespace OpenIZ.Mobile.Core.Data.Persistence
         {
             var domainObject = this.FromModelInstance(data, context) as TDomain;
 
+
             if (domainObject.Uuid == null || domainObject.Key == Guid.Empty)
                 data.Key = domainObject.Key = Guid.NewGuid();
 

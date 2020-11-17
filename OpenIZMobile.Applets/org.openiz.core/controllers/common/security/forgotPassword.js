@@ -56,7 +56,7 @@ angular.module('layout').controller('ForgotPasswordController', ['$scope', '$win
             $scope.$apply();
         },
         onException: function (ex) {
-            OpenIZ.App.showErrorDialog(ex);
+            console.error(ex);
 
         }
     });

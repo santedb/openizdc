@@ -230,7 +230,7 @@ namespace OizDebug.Shell
             {
                 var col = Console.ForegroundColor;
                 Console.ForegroundColor = this.GetResponseColor();
-                this.m_prompt = $"{e.CurrentStatement.LabelSet.Name ?? JavascriptBusinessRulesEngine.Current.ExecutingFile ?? this.m_loadFile} @ {e.CurrentStatement.Location.Start.Line} (step) >";
+                this.m_prompt = $"{e.CurrentStatement.LabelSet?.Name ?? JavascriptBusinessRulesEngine.Current.ExecutingFile ?? this.m_loadFile} @ {e.CurrentStatement.Location.Start.Line} (step) >";
                 this.m_currentDebug = e;
                 int l = Console.CursorLeft;
                 Console.CursorLeft = 0;
@@ -611,7 +611,7 @@ namespace OizDebug.Shell
             String fileName = null;
             if (this.m_currentDebug != null)
             {
-                if (!this.m_loadedFiles.TryGetValue(this.m_currentDebug.CurrentStatement.LabelSet.Name ?? JavascriptBusinessRulesEngine.Current.ExecutingFile ?? this.m_loadFile, out fileName))
+                if (!this.m_loadedFiles.TryGetValue(this.m_currentDebug.CurrentStatement.LabelSet?.Name ?? JavascriptBusinessRulesEngine.Current.ExecutingFile ?? this.m_loadFile, out fileName))
                     throw new InvalidOperationException($"Source for {this.m_currentDebug.CurrentStatement.LabelSet} not found");
             }
             else if (!this.m_loadedFiles.TryGetValue(Path.GetFileName(this.m_loadFile), out fileName))

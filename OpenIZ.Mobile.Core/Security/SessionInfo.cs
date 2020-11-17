@@ -154,6 +154,13 @@ namespace OpenIZ.Mobile.Core.Security
         public List<String> Roles { get; set; }
 
         /// <summary>
+        /// Gets the roles to which the identity belongs
+        /// </summary>
+        [JsonProperty("scope")]
+        public List<String> Scopes { get; set; }
+
+
+        /// <summary>
         /// True if authenticated
         /// </summary>
         [JsonProperty("isAuthenticated")]
@@ -244,7 +251,7 @@ namespace OpenIZ.Mobile.Core.Security
                 this.Expiry = (cp.FindClaim(ClaimTypes.Expiration)?.AsDateTime().ToLocalTime() ?? DateTime.MaxValue);
                 this.Roles = cp.Claims.Where(o => o.Type == ClaimsIdentity.DefaultRoleClaimType)?.Select(o => o.Value)?.ToList();
                 this.AuthenticationType = cp.FindClaim(ClaimTypes.AuthenticationMethod)?.Value;
-
+                this.Scopes = cp.Claims.Where(o => o.Type == "http://openiz.org/claims/grant")?.Select(o => o.Value)?.ToList();
                 var subKey = Guid.Empty;
                 if (cp.HasClaim(o => o.Type == ClaimTypes.Sid))
                     Guid.TryParse(cp.FindClaim(ClaimTypes.Sid)?.Value, out subKey);

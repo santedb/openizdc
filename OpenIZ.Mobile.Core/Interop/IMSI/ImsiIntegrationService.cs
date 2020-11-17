@@ -37,6 +37,7 @@ using OpenIZ.Mobile.Core.Exceptions;
 using OpenIZ.Mobile.Core.Security;
 using OpenIZ.Mobile.Core.Services;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Net;
@@ -268,7 +269,7 @@ namespace OpenIZ.Mobile.Core.Interop.IMSI
                 if (client.Client.Credentials == null) return;
 
                 // Special case = Batch submit of data with an entry point
-                var submission = (data as Bundle)?.Entry ?? data;
+                var submission = data;
                 client.Client.Requesting += (o, e) =>
                 {
                     var bund = e.Body as Bundle;
@@ -391,7 +392,7 @@ namespace OpenIZ.Mobile.Core.Interop.IMSI
                     client.Client.Requesting += (o, e) => e.AdditionalHeaders["X-Patch-Force"] = "true";
 
                 // Special case = Batch submit of data with an entry point
-                var submission = (data as Bundle)?.Entry ?? data;
+                var submission = data;
 
                 // Assign a uuid for this submission
                 if (data is Bundle && data.Key == null)
@@ -524,6 +525,37 @@ namespace OpenIZ.Mobile.Core.Interop.IMSI
             var idpService = ApplicationContext.Current.GetService(idp);
             if (idpService != null)
                 idp.GetRuntimeMethod("Update", new Type[] { newData.GetType() }).Invoke(idpService, new object[] { newData });
+        }
+
+        // Known uuid
+        private HashSet<Guid> m_knownUuids = new HashSet<Guid>();
+
+        /// <summary>
+        /// PErform a HEAD operation
+        /// </summary>
+        public bool Exists<TModel>(Guid key)
+        {
+            try
+            {
+                if (m_knownUuids.Contains(key)) return true; // Already tested
+                else if (m_knownUuids.Count > 1000) m_knownUuids.Clear();
+
+                ImsiServiceClient client = this.GetServiceClient(); //new ImsiServiceClient(ApplicationContext.Current.GetRestClient("imsi"));
+                client.Client.Responding += (o, e) => this.Responding?.Invoke(o, e);
+                client.Client.Credentials = this.GetCredentials(client.Client);
+                if (client.Client.Credentials == null) return false;
+
+                this.m_tracer.TraceVerbose("Performing IMSI HEAD ({0}):{1}", typeof(TModel).FullName, key);
+                var retVal = client.Client.Head($"{typeof(TModel).Name}/{key}");
+
+                if(retVal.ContainsKey("ETag"))
+                    m_knownUuids.Add(key);
+                return retVal.ContainsKey("ETag");
+            }
+            catch(Exception)
+            {
+                return false;
+            }
         }
     }
 }

@@ -400,6 +400,22 @@ namespace OpenIZ.Mobile.Core.Data.Persistence
             {
                 retVal.Participations.RemoveAll(o => o.IsEmpty());
 
+                // Was author removed?
+                var sourceUuid = retVal.Key.Value.ToByteArray();
+                var roleUuid = ActParticipationKey.Authororiginator.ToByteArray();
+                var existingPtcpt = context.Connection.Table<DbActParticipation>().Where(o => o.ActUuid == sourceUuid && o.ParticipationRoleUuid == roleUuid).FirstOrDefault();
+                var newPtcpt = data.Participations.FirstOrDefault(o => o.ParticipationRoleKey == ActParticipationKey.Authororiginator);
+                if (existingPtcpt != null && newPtcpt == null)
+                    data.Participations.Add(new ActParticipation(ActParticipationKey.Authororiginator, new Guid(existingPtcpt.EntityUuid)));
+                
+                sourceUuid = retVal.Key.Value.ToByteArray();
+                roleUuid = ActParticipationKey.Authororiginator.ToByteArray();
+
+                existingPtcpt = context.Connection.Table<DbActParticipation>().Where(o => o.ActUuid == sourceUuid && o.ParticipationRoleUuid == roleUuid).FirstOrDefault();
+                newPtcpt = data.Participations.FirstOrDefault(o => o.ParticipationRoleKey == ActParticipationKey.Authororiginator);
+                if (existingPtcpt != null && newPtcpt == null)
+                    data.Participations.Add(new ActParticipation(ActParticipationKey.Authororiginator, new Guid(existingPtcpt.EntityUuid)));
+
                 base.UpdateAssociatedItems<ActParticipation, Act>(
                     context.Connection.Table<DbActParticipation>().Where(a => ruuid == a.ActUuid).ToList().Select(o => m_mapper.MapDomainInstance<DbActParticipation, ActParticipation>(o)).ToList(),
                     retVal.Participations.Distinct(new ActParticipationPersistenceService.Comparer()),
