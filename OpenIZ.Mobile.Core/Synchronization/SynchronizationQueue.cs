@@ -365,12 +365,19 @@ namespace OpenIZ.Mobile.Core.Synchronization
                         var tdata = conn.Table<TQueueEntry>().Where(o => o.Id == id).FirstOrDefault();
                         if (tdata != null)
                         {
-                            conn.Delete(tdata);
+                            conn.Table<TQueueEntry>().Delete(o => o.Id == id);
                             ApplicationContext.Current.GetService<IQueueFileProvider>().RemoveQueueData(tdata?.Data);
                         }
                         else
                             this.m_tracer.TraceWarning("Could not find queue item {0} to be deleted", id);
                     }
+                }
+                catch(SQLiteException e) when (e.Message.Contains("orrupt"))
+                {
+                    this.m_tracer.TraceError("Error deleting object: {0}", e);
+                    this.m_tracer.TraceWarning("Will try to recover database");
+                    var result = conn.ExecuteScalar<string>("PRAGMA integrity_check");
+                    this.m_tracer.TraceWarning("Database reports: {0}", result);
                 }
                 catch (Exception e)
                 {
