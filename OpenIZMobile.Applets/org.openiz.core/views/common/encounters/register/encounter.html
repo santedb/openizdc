@@ -48,9 +48,9 @@
                         <div class="control__indicator" style="top: 8px;"></div>
                     </label>
                 </span>
-                <select style="width:100%; height:100%" ng-disabled="!encounter.participation.Location._enabled" 
-                        id="encounterFacility" name="encounterFacility" ng-model="encounter.participation.Location.player" 
-                        class="form-control"  oiz-entitysearch="Place" 
+                <select style="width:100%; height:100%" ng-disabled="!encounter.participation.Location._enabled"
+                        id="encounterFacility" name="encounterFacility" ng-model="encounter.participation.Location.player"
+                        class="form-control" oiz-entitysearch="Place"
                         data-filter='{ "classConcept" :  "FF34DFA7-C6D3-4F8B-BC9F-14BCDC13BA6C" }'>
                     <option value="">{{ 'locale.common.location.none' | i18n }}</option>
                     <option selected="selected" value="{{$root.session.entity.relationship.DedicatedServiceDeliveryLocation.target}}">
@@ -64,7 +64,7 @@
         <label class="col-xs-12 col-sm-2">{{ 'locale.encounters.performer' | i18n }}</label>
         <div class="col-xs-12 col-sm-10">
             <div class="input-group">
-                <input type="text" autocomplete="off" autocapitalize="off"  disabled="disabled" value="{{encounter.participation.Performer.playerModel.name.OfficialRecord | oizEntityName}}" class="form-control" />
+                <input type="text" autocomplete="off" autocapitalize="off" disabled="disabled" value="{{encounter.participation.Performer.playerModel.name.OfficialRecord | oizEntityName}}" class="form-control" />
             </div>
         </div>
     </div>

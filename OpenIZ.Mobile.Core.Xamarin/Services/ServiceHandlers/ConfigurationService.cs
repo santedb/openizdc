@@ -575,7 +575,11 @@ namespace OpenIZ.Mobile.Core.Xamarin.Services.ServiceHandlers
             try
             {
 
-                new PolicyPermission(PermissionState.Unrestricted, PolicyIdentifiers.UnrestrictedAdministration).Demand();
+                new PolicyPermission(PermissionState.Unrestricted, PolicyIdentifiers.CreateDevice).Demand();
+                new PolicyPermission(PermissionState.Unrestricted, PolicyIdentifiers.CreateIdentity).Demand();
+                new PolicyPermission(PermissionState.Unrestricted, PolicyIdentifiers.AlterIdentity).Demand();
+                new PolicyPermission(PermissionState.Unrestricted, PolicyIdentifiers.AccessClientAdministrativeFunction).Demand();
+                new PolicyPermission(PermissionState.Unrestricted, PolicyIdentifiers.UnrestrictedMetadata).Demand();
 
                 // We're allowed to access server admin!!!! Yay!!!
                 // We're goin to conigure the realm settings now (all of them)
@@ -842,7 +846,7 @@ namespace OpenIZ.Mobile.Core.Xamarin.Services.ServiceHandlers
 
                 }
 
-                throw new UnauthorizedAccessException();
+                throw;
             }
             catch (Exception e)
             {

@@ -17,6 +17,7 @@
  * User: justi
  * Date: 2018-7-7
  */
+using OpenIZ.Core.Diagnostics;
 using OpenIZ.Core.Exceptions;
 using OpenIZ.Core.Interfaces;
 using OpenIZ.Core.Model;
@@ -37,6 +38,7 @@ namespace OpenIZ.Mobile.Core.Services.Impl
     /// </summary>
     public abstract class EntityRepositoryBase : IPersistableQueryRepositoryService, IAuditEventSource, IFastQueryRepositoryService
     {
+        private Tracer m_tracer = Tracer.GetTracer(typeof(EntityRepositoryBase));
         public event EventHandler<AuditDataEventArgs> DataCreated;
         public event EventHandler<AuditDataEventArgs> DataUpdated;
         public event EventHandler<AuditDataEventArgs> DataObsoleted;

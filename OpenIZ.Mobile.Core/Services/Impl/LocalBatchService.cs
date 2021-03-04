@@ -29,6 +29,7 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using OpenIZ.Core.Diagnostics;
 
 namespace OpenIZ.Mobile.Core.Services.Impl
 {
@@ -37,6 +38,9 @@ namespace OpenIZ.Mobile.Core.Services.Impl
 	/// </summary>
 	public class LocalBatchService : IBatchRepositoryService, IAuditEventSource, IRepositoryService<Bundle>
 	{
+
+        private Tracer m_tracer = Tracer.GetTracer(typeof(LocalBatchService));
+
         public event EventHandler<AuditDataEventArgs> DataCreated;
         public event EventHandler<AuditDataDisclosureEventArgs> DataDisclosed;
         public event EventHandler<AuditDataEventArgs> DataObsoleted;
@@ -90,7 +94,8 @@ namespace OpenIZ.Mobile.Core.Services.Impl
 			if (persistence == null)
 				throw new InvalidOperationException("Missing persistence service");
             var breService = ApplicationContext.Current.GetService<IBusinessRulesService<Bundle>>();
-
+            if (breService == null)
+                this.m_tracer.TraceWarning("There are no business rules registered for {0}", breService);
             // Before insert or update?
             data = breService?.BeforeInsert(data) ?? data;
 			data = persistence.Insert(data);
@@ -157,6 +162,8 @@ namespace OpenIZ.Mobile.Core.Services.Impl
 			if (persistence == null)
 				throw new InvalidOperationException("Missing persistence service");
             var breService = ApplicationContext.Current.GetService<IBusinessRulesService<Bundle>>();
+            if (breService == null)
+                this.m_tracer.TraceWarning("There are no business rules registered for {0}", breService);
 
             // Entry point
             IdentifiedData old = null;

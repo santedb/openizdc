@@ -44,6 +44,7 @@ using OpenIZ.Mobile.Core.Xamarin.Services.Model;
 using System.Text;
 using OpenIZ.Core.Applets;
 using OpenIZ.Core.Applets.Services;
+using ZXing.Mobile;
 
 namespace OpenIZ.Mobile.Core.Android.AppletEngine.JNI
 {
@@ -376,7 +377,8 @@ namespace OpenIZ.Mobile.Core.Android.AppletEngine.JNI
             {
                 if (!this.m_zxingInitialized && (XamarinApplicationContext.Current as AndroidApplicationContext).AndroidApplication != null)
                 {
-                    ZXing.Mobile.MobileBarcodeScanner.Initialize((XamarinApplicationContext.Current as AndroidApplicationContext).AndroidApplication);
+                    MobileBarcodeScanner.Initialize((AndroidApplicationContext.Current as AndroidApplicationContext).AndroidApplication);
+                    //ZXing.Mobile.MobileBarcodeScanner.Initialize((ApplicationContext.Current as AndroidApplicationContext).AndroidApplication);
                     this.m_zxingInitialized = true;
                 }
                 var scanner = new ZXing.Mobile.MobileBarcodeScanner();

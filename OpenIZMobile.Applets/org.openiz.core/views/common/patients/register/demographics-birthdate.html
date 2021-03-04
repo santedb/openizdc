@@ -33,8 +33,8 @@
                        ng-max="getDateOfBirthMaximum() || $root.page.maxEventTime"
                        max="{{(getDateOfBirthMaximum() || $root.page.maxEventTime) | date: 'yyyy-MM-dd'}}" 
                        ng-required="true" />
-                <span class="input-group-addon input-group-addon-approx">
-                    <label class="control control--checkbox">
+                <!--<span class="input-group-addon input-group-addon-approx">
+                    <label class="control control-checkbox">
                         <div class="approx-add-in">{{ 'locale.patient.demographics.dob.fuzzy' | i18n }}</div>
                         <input type="checkbox"
                                ng-readonly="patientBackup.tag.hasBirthCertificate === 'True'"
@@ -46,7 +46,7 @@
                         <div class="control__indicator" style="top: 8px;"></div>
                     </label>
                 </span>
-                <span class="input-group-btn">
+                --><span class="input-group-btn">
                     <a class="btn btn-default" data-toggle="popover" tabindex="2" data-trigger="focus" title="{{ 'locale.patient.demographics.dateOfBirthFull' | i18n }}" data-content="{{ 'locale.patient.demographics.dateOfBirthPrecision.help' | i18n }}"><span class="glyphicon glyphicon-question-sign"></span></a>
                 </span>
             </div>

@@ -29,6 +29,7 @@ using OpenIZ.Mobile.Core.Xamarin.Resources;
 using OpenIZ.Core.Diagnostics;
 using OpenIZ.Core.Applets.ViewModel.Description;
 using OpenIZ.Core;
+using OpenIZ.Core.Applets.Services;
 
 namespace OpenIZ.Mobile.Core.Xamarin.Rules
 {
@@ -37,6 +38,8 @@ namespace OpenIZ.Mobile.Core.Xamarin.Rules
     /// </summary>
     public class BusinessRulesDaemonService : IDaemonService
     {
+
+        private Tracer m_tracer = Tracer.GetTracer(typeof(BusinessRulesDaemonService));
 
         /// <summary>
         /// Indicates whether the service is running
@@ -68,12 +71,27 @@ namespace OpenIZ.Mobile.Core.Xamarin.Rules
                     ApplicationServiceContext.HostType = OpenIZHostType.OtherClient;
 
                     if (ApplicationContext.Current.GetService<IDataReferenceResolver>() == null)
+                    {
                         ApplicationContext.Current.AddServiceProvider(typeof(AppletDataReferenceResolver));
-                    new AppletBusinessRuleLoader().LoadRules();
+                    }
+
+                    var appletManager = ApplicationServiceContext.Current.GetService(typeof(IAppletManagerService)) as IAppletManagerService;
+                    JavascriptBusinessRulesEngine.InitializeGlobal();
+                    foreach (var itm in appletManager.Applets.SelectMany(a => a.Assets).Where(a => a.Name.StartsWith("rules/")))
+                        using (StreamReader sr = new StreamReader(new MemoryStream(appletManager.Applets.RenderAssetContent(itm))))
+                        {
+                            ApplicationContext.Current.SetProgress($"Init Rules {itm.Name}", 0.5f);
+
+                            this.m_tracer.TraceWarning("++> Adding rules from {0}", itm.Name);
+                            JavascriptBusinessRulesEngine.AddRulesGlobal(itm.Name, sr);
+                            //OpenIZ.BusinessRules.JavaScript.JavascriptBusinessRulesEngine.Current.AddRules(itm.Name, sr);
+                        }
+
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
-                    Tracer.GetTracer(typeof(BusinessRulesDaemonService)).TraceError("Error starting up business rules service: {0}", ex);
+                    this.m_tracer.TraceError("Error starting up business rules daemon: {0}", ex);
+                    throw new Exception("Unable to initialize business rules", ex);
                 }
             };
             this.Started?.Invoke(this, EventArgs.Empty);

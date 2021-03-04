@@ -7,9 +7,9 @@
         FROM 
 	        act_vrsn_tbl 
         WHERE 
-	        obslt_utc is null AND
+	        obslt_utc is null 
           AND STS_CD_ID <> '39995C08-0A5C-4549-8BA7-D187F9B3C4FD'
-	        act_id IN (
+	        AND act_id IN (
 	              SELECT ACT_ID 
 	              FROM 	
 		              ACT_PTCPT_TBL 

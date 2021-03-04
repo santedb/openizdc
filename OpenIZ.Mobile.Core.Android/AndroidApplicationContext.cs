@@ -298,7 +298,6 @@ namespace OpenIZ.Mobile.Core.Android
                     //ApplicationContext.Current = null;
                     retVal.m_configurationManager = new Android.Configuration.ConfigurationManager(Android.Configuration.ConfigurationManager.GetDefaultConfiguration());
                     AuthenticationContext.Current = new AuthenticationContext(AuthenticationContext.SystemPrincipal);
-
                     throw;
                 }
 

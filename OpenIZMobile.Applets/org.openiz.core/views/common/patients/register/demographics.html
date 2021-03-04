@@ -65,8 +65,8 @@
                        ng-model="patient.deceasedDate"
                        max="{{$root.page.currentTime | date: 'yyyy-MM-dd'}}" 
                        min="{{patient.dateOfBirth | date : 'yyyy-MM-dd'}}" />
-                <span class="input-group-addon input-group-addon-approx">
-                    <label class="control control--checkbox">
+                <!--<span class="input-group-addon input-group-addon-approx">
+                    <label class="control control-checkbox">
                         <div class="approx-add-in">{{ 'locale.patient.demographics.dob.fuzzy' | i18n }}</div>
                         <input type="checkbox"
                                ng-disabled="!patient.isDeceased"
@@ -77,7 +77,7 @@
                                name="approximateDeath" />
                         <div class="control__indicator" style="top: 8px;"></div>
                     </label>
-                </span>
+                </span>-->
                 <span class="input-group-btn">
                     <a class="btn btn-default" data-toggle="popover" tabindex="3" data-trigger="focus" title="{{ 'locale.patient.demographics.deceasedDate' | i18n }}" data-content="{{ 'locale.patient.demographics.deceasedDate.help' | i18n }}"><span class="glyphicon glyphicon-question-sign"></span></a>
                 </span>

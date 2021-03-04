@@ -499,7 +499,7 @@ namespace OpenIZ.Mobile.Core.Data.Warehouse
                 }
 
                 var patient = ApplicationContext.Current.GetService<IDataPersistenceService<Patient>>().Get(patientId.Value);
-
+                if (patient == null) return; // Patient does not exist
                 // Is there a protocol for this act?
                 if (act.Protocols.Count() == 0)
                 {

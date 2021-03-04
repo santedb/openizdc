@@ -14,7 +14,12 @@
     <AndroidUseLatestPlatformSdk>False</AndroidUseLatestPlatformSdk>
     <AssemblyName>OpenIZ.Mobile.Core.Android</AssemblyName>
     <TargetFrameworkVersion>v10.0</TargetFrameworkVersion>
+    <PackageTargetFallback>$(PackageTargetFallback);net40</PackageTargetFallback>
     <AndroidLinkMode>None</AndroidLinkMode>
+    <AndroidKeyStore>false</AndroidKeyStore>
+    <AndroidSigningKeyStore>C:\Users\fyfej\source\repos\keys\openiz.keystore</AndroidSigningKeyStore>
+    <AndroidSigningStorePass>
+    </AndroidSigningStorePass>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -23,10 +28,9 @@
     <OutputPath>bin\Debug</OutputPath>
     <DefineConstants>DEBUG;DEV_MODE NOCRYPT</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <ConsolePause>false</ConsolePause>
-    <RunCodeAnalysis>false</RunCodeAnalysis>
     <LangVersion>6</LangVersion>
+    <WarningLevel>4</WarningLevel>
+    <AndroidSdkBuildToolsVersion>26</AndroidSdkBuildToolsVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <Optimize>false</Optimize>
@@ -37,6 +41,7 @@
     <RunCodeAnalysis>false</RunCodeAnalysis>
     <LangVersion>6</LangVersion>
     <DefineConstants>DEV_MODE;NOCRYPT</DefineConstants>
+    <AndroidSdkBuildToolsVersion>26</AndroidSdkBuildToolsVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'SignedRelease|AnyCPU'">
     <OutputPath>bin\SignedRelease\</OutputPath>
@@ -46,6 +51,7 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <DefineConstants>NOCRYPT</DefineConstants>
+    <AndroidSdkBuildToolsVersion>26</AndroidSdkBuildToolsVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'MacDebug|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
@@ -73,6 +79,9 @@
     </Reference>
     <Reference Include="ExpressionEvaluator">
       <HintPath>..\Solution Items\ExpressionEvaluator.dll</HintPath>
+    </Reference>
+    <Reference Include="FastAndroidCamera">
+      <HintPath>..\Solution Items\FastAndroidCamera.dll</HintPath>
     </Reference>
     <Reference Include="Mono.CSharp" />
     <Reference Include="Mono.Data.Sqlite" />
@@ -119,6 +128,9 @@
     <Reference Include="Mono.Android.Export" />
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\Solution Items\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Xamarin.Android.Support.v4">
+      <HintPath>..\Solution Items\Xamarin.Android.Support.v4.dll</HintPath>
     </Reference>
     <Reference Include="ZXing.Net.Mobile.Core">
       <HintPath>..\Solution Items\ZXing.Net.Mobile.Core.dll</HintPath>

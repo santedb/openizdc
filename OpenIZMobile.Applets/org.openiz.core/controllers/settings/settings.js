@@ -121,8 +121,13 @@ angular.module('layout').controller('SettingsController', ['$scope', 'uiHelperSe
                                 console.log(error);
                         }
                     }
-                    else if (error.type != "UnauthorizedAccessException")
-                        alert(OpenIZ.Localization.getString("locale.settings.status.generalRealmError"))
+                    else if (error.type != "UnauthorizedAccessException" && error.type != "PolicyViolationException")
+                        alert(OpenIZ.Localization.getString("locale.settings.status.generalRealmError"));
+                    else if (error.type == "PolicyViolationException" ) {
+                        OpenIZ.Authentication.$elevationCredentials = backupCredentials;
+                        if (backupCredentials.userName)
+                            alert(error.message);
+                    }
                 },
                 finally: function () {
                     OpenIZ.App.hideWait('#joinRealmButton');

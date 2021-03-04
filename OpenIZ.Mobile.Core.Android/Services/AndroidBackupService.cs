@@ -53,10 +53,7 @@ namespace OpenIZ.Mobile.Core.Android.Services
                     if (ossec.HasPermission(PermissionType.FileSystem) ||
                         ossec.RequestPermission(PermissionType.FileSystem))
                     {
-                        var retVal = System.IO.Path.Combine(
-                            A.OS.Environment.ExternalStorageDirectory.AbsolutePath,
-                            A.OS.Environment.DirectoryDocuments,
-                            (AndroidApplicationContext.Current as AndroidApplicationContext).AndroidApplication.PackageName);
+                        var retVal = A.App.Application.Context.GetExternalFilesDir("").AbsolutePath;
                         if (!System.IO.Directory.Exists(retVal))
                             System.IO.Directory.CreateDirectory(retVal);
                         return retVal;

@@ -166,7 +166,7 @@ namespace OpenIZ.Mobile.Core.Data.Persistence
             return new DbCodedObservation()
             {
                 Uuid = modelInstance.Key?.ToByteArray(),
-                Value = modelInstance.ValueKey?.ToByteArray()
+                Value = modelInstance.ValueKey.ToByteArray()
             };
         }
 

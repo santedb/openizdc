@@ -255,7 +255,7 @@ namespace OpenIZMobile
                     result = false;
                     reset.Set();
                 },
-                Resources.GetString(Resource.String.err_startup), e is TargetInvocationException ? e.InnerException.Message : e.Message);
+                Resources.GetString(Resource.String.err_startup), e is TargetInvocationException ? e.InnerException.ToString() : e.ToString());
 
             reset.WaitOne();
 
