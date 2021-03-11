@@ -201,31 +201,7 @@
             <p class="help-block text-danger ng-cloak" ng-show="mothersInfoForm.mothersPhoneNumber.$error.pattern">{{ 'locale.patient.errors.phoneNumber' | i18n}}</p>
         </div>
     </div>
-
-    <div class="form-group" ng-if="$root.session.scope.indexOf('2.25.30293928329282392') != -1">
-        <label class="col-xs-3 control-label" for="mothersEducation">{{ 'locale.patient.mother.education' | i18n }}<span ng-if="!editMotherForm &amp;&amp; !motherUnknown">*</span></label>
-        <div class="col-xs-9">
-            <select ng-disabled="motherUnknown"
-                    id="mothersEducation" name="mothersEducation"
-                    class="form-control" ng-required="!motherUnknown"
-                    ng-model="patient.relationship.Mother.targetModel.extension[http://openiz.org/extensions/contrib/timr/socialIndicators/education]"
-                    bind:source="Concept"
-                    bind:filter="conceptSet.mnemonic=EducationLevel"
-                    bind:value="name[{{ locale }}].value"></select>
-        </div>
-    </div>
-    <div class="form-group" ng-if="$root.session.scope.indexOf('2.25.30293928329282392') != -1">
-        <label class="col-xs-3 control-label" for="mothersOccupation">{{ 'locale.patient.mother.occupation' | i18n }}<span ng-if="!editMotherForm &amp;&amp; !motherUnknown">*</span></label>
-        <div class="col-xs-9">
-            <select ng-disabled="motherUnknown"
-                    id="mothersOccupation" name="mothersOccupation"
-                    class="form-control" ng-required="!motherUnknown"
-                    ng-model="patient.relationship.Mother.targetModel.extension[http://openiz.org/extensions/contrib/timr/socialIndicators/occupation]"
-                    bind:source="Concept"
-                    bind:filter="conceptSet.mnemonic=OccupationType"
-                    bind:value="name[{{ locale }}].value"></select>
-        </div>
-    </div>
+    
     <div class="form-group" ng-if="$root.session.scope.indexOf('2.25.30293928329282392') != -1">
         <label class="col-xs-3 control-label" for="mothersBirthplace">{{ 'locale.patient.mother.birthplace' | i18n }}<span ng-if="!editMotherForm &amp;&amp; !motherUnknown">*</span></label>
         <div class="col-xs-9">
@@ -235,29 +211,11 @@
                     ng-model="patient.relationship.Mother.targetModel.relationship.Birthplace.target"
                     oiz-entitysearch="Place"
                     data-filter='{ "classConcept" : "48b2ffb3-07db-47ba-ad73-fc8fb8502471" }'>
-                <option ng-if="patient.relationship.Mother.targetModel.relationship.Birthplace.targetModel" value="{{ ::patient.relationship.Mother.targetModel.relationship.Birthplace.target}}">
-                    {{ patient.relationship.Mother.targetModel.relationship.Birthplace.targetModel.name.OfficialRecord | oizEntityName }}
-                </option>
-                <option value="2092c150-ad34-48ae-9a8b-ecfe2cec4f74" selected="selected">Tanzania</option>
+               
             </select>
         </div>
     </div>
-    <div class="form-group" ng-if="$root.session.scope.indexOf('2.25.30293928329282392') != -1">
-        <label class="col-xs-3 control-label" for="mothersBirthplace">{{ 'locale.patient.mother.citizenship' | i18n }}<span ng-if="!editMotherForm &amp;&amp; !motherUnknown">*</span></label>
-        <div class="col-xs-9">
-            <select ng-disabled="motherUnknown" style="width: 100%; height: 100%"
-                    id="mothersBirthplace" name="mothersBirthplace"
-                    class="form-control" ng-required="!motherUnknown"
-                    ng-model="patient.relationship.Mother.targetModel.relationship.Citizen.target"
-                    oiz-entitysearch="Place"
-                    data-filter='{ "classConcept" : "48b2ffb3-07db-47ba-ad73-fc8fb8502471" }'>
-                <option ng-if="patient.relationship.Mother.targetModel.relationship.Citizen.targetModel" value="{{ ::patient.relationship.Mother.targetModel.relationship.Citizen.target}}">
-                    {{ patient.relationship.Mother.targetModel.relationship.Citizen.targetModel.name.OfficialRecord | oizEntityName }}
-                </option>
-                <option value="2092c150-ad34-48ae-9a8b-ecfe2cec4f74" selected="selected">Tanzania</option>
-            </select>
-        </div>
-    </div>
+    
     <div class="form-group" ng-controller="DomicileLookupController" ng-if="$root.session.scope.indexOf('2.25.30293928329282392') != -1">
         <label class="col-xs-3 control-label" for="motherVillage">
             {{ 'locale.patient.mother.domicile' | i18n }} <span ng-if="!editMotherForm &amp;&amp; !motherUnknown">*</span>
@@ -270,11 +228,8 @@
                         ng-model="patient.relationship.Mother.targetModel.address.HomeAddress.villageId"
                         oiz-entitysearch="Place"
                         data-filter='{ "classConcept" : "!FF34DFA7-C6D3-4F8B-BC9F-14BCDC13BA6C" }'
-                        data-default="scope.$parent.getDefaultVillages(element)"
+                        default-values="$rootScope.getDefaultVillages(element)"
                         data-group-by="address.Direct.component.County">
-                    <option ng-if="patient.relationship.Mother.targetModel.address.HomeAddress.component" value="{{ ::patient.relationship.Mother.targetModel.address.HomeAddress.villageId}}">
-                        {{(patient.relationship.Mother.targetModel.address.HomeAddress.component.AdditionalLocator || patient.relationship.Mother.targetModel.address.HomeAddress.component.StreetAddressLine || patient.relationship.Mother.targetModel.address.HomeAddress.component.Precinct)}}
-                    </option>
                 </select>
                 <span class="input-group-btn">
                     <a class="btn btn-default" data-toggle="popover" tabindex="0" data-trigger="focus" title="{{ 'locale.patient.mother.domicile' | i18n }}" data-content="{{ 'locale.patient.mother.domicile.help' | i18n }}"><span class="glyphicon glyphicon-question-sign"></span></a>
@@ -284,32 +239,6 @@
                  class="help-block text-danger" role="alert">
                 <div>{{ 'locale.patient.errors.village.required' | i18n }}</div>
             </div>
-        </div>
-    </div>
-    <div class="form-group" ng-if="$root.session.scope.indexOf('2.25.30293928329282392') != -1">
-        <label style="margin-bottom:1em" class="col-xs-3 control-label" for="prevPregnancy">
-            {{ 'locale.patient.mother.previousPregnancies' | i18n }} 
-        </label>
-        <div style="margin-bottom:1em" class="col-sm-3 col-xs-9">
-            <input class="form-control" type="number" name="prevPregnancy" min="0" max="20" ng-model="patient.relationship.Mother.targetModel.pregnancyData.previous" required="required" />
-        </div>
-        <label style="margin-bottom:1em" class="col-xs-3 control-label" for="liveBirth">
-            {{ 'locale.patient.mother.liveBirths' | i18n }} 
-        </label>
-        <div style="margin-bottom:1em" class="col-sm-3 col-xs-9">
-            <input class="form-control" type="number" name="liveBirth" min="0" max="20" ng-model="patient.relationship.Mother.targetModel.pregnancyData.liveBirth" required="required" />
-        </div>
-        <label style="margin-bottom:1em" class="col-xs-3 control-label" for="prenatalDeaths">
-            {{ 'locale.patient.mother.prenatalDeaths' | i18n }}
-        </label>
-        <div style="margin-bottom:1em" class="col-sm-3 col-xs-9">
-            <input class="form-control" type="number" name="prenatalDeaths" min="0" max="20" ng-model="patient.relationship.Mother.targetModel.pregnancyData.prenatalDeath" required="required" />
-        </div>
-        <label style="margin-bottom:1em" class="col-xs-3 control-label" for="monthPregnant">
-            {{ 'locale.patient.mother.monthsCaringPregnancy' | i18n }} 
-        </label>
-        <div style="margin-bottom:1em" class="col-sm-3 col-xs-9">
-            <input class="form-control" type="number" name="liveBirth" min="0" max="20" ng-model="patient.relationship.Mother.targetModel.pregnancyData.monthsCaringPregnancy" required="required" />
         </div>
     </div>
 </fieldset>

@@ -83,7 +83,6 @@
                     <div class="input-group">
                         <!-- TODO: Remove ng-required - it is a country specific requirement -->
                         <select class="form-control" style="width:100%; height:100%" id="facilityInput" name="facilityInput" ng-change="config.security.onlySubscribedAuth = true" ng-model="config.data.sync.subscribe" ng-required="true" oiz-entitysearch="Place" data-filter='{ "classConcept" :  "FF34DFA7-C6D3-4F8B-BC9F-14BCDC13BA6C" }'>
-                            <option value="{{::$root.session.entity.relationship.DedicatedServiceDeliveryLocation.target}}">{{::$root.session.entity.relationship.DedicatedServiceDeliveryLocation.targetModel.name.OfficialRecord | oizEntityName }}</option>
                         </select>
                         <span class="input-group-btn">
                             <a class="btn btn-default" data-toggle="popover" data-placement="top" tabindex="1" data-trigger="focus" title="{{ 'locale.settings.subscribe' | i18n }}" data-content="{{ 'locale.settings.subscribe.help' | i18n }}"><span class="glyphicon glyphicon-question-sign"></span></a>

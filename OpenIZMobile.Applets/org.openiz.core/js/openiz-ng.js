@@ -106,9 +106,9 @@ angular.module('openiz', [])
             return "locale.stock.label.pending";
         };
     })
-     /** 
-     * @deprecated
-     */
+    /** 
+    * @deprecated
+    */
     .filter('orderLabel', function () {
         return function (moodConcept, statusConcept) {
             if (moodConcept == OpenIZModel.ActMoodKeys.Eventoccurrence && statusConcept == OpenIZModel.StatusKeys.Active) {
@@ -490,28 +490,103 @@ angular.module('openiz', [])
      * @param {string} data-resultField The field on the result objects which contains the result
      */
     .directive('oizEntitysearch', function ($timeout) {
+
+        
         return {
             scope: {
                 defaultResults: '='
             },
+
             require: 'ngModel',
             link: function (scope, element, attrs, ngModel) {
+                var modelType = attrs.oizEntitysearch;
+                var filterString = attrs.filter;
+                var displayString = attrs.display;
+                var searchProperty = attrs.searchfield || "name.component.value";
+                var defaultResultExpr = attrs.default;
+                var groupString = attrs.groupBy;
+                var groupDisplayString = attrs.groupDisplay;
+                var resultProperty = attrs.resultfield || "id";
+                var filter = {}, defaultFilter = {};
+                if (filterString !== undefined)
+                    filter = JSON.parse(filterString);
+
+                if (modelType != "SecurityUser" && modelType != "SecurityRole")
+                    filter.statusConcept = 'C8064CBD-FA06-4530-B430-1A52F1530C27';
+
+                // HACK: Quick copy from SanteDB
+                scope.setValue = function(resource, value) {
+                    if (value){
+                        if (!Array.isArray(value))
+                            value = [value];
+
+                        value.forEach(function (v) {
+
+                            try {
+                                var res = new OpenIZ.Ims.get({
+                                    resource: modelType,
+                                    query: { _id: v },
+                                    continueWith: function (data) {
+                                        if (data.id == v && $(element).find(`option[value='${v}']`).length == 0) {
+                                            $(element)[0].add(new Option(renderObject(data), v, false, true));
+                                            $(element).trigger('change.select2');
+                                        }
+                                    }
+                                });
+                                
+                            }
+                            catch (e) {
+                                console.warn("Could not fetch object " + e);
+                            }
+                           
+
+                        });
+                    }
+                }
+
+                function renderObject(selection) {
+                    var retVal = "";
+                    if (selection.text && selection.text.indexOf('<span') == 0)
+                        return selection.text; // already rendered
+                    else {
+                        switch (modelType) {
+                            case "UserEntity":
+                            case "Provider":
+                                retVal += "<span class='glyphicon glyphicon-user'></span>";
+                                break;
+                            case "Place":
+                                retVal += "<span class='glyphicon glyphicon-map-marker'></span>";
+                                break;
+                            case "Entity":
+                                retVal += "<span class='glyphicon glyphicon-tag'></span>";
+                                break;
+                        }
+                        retVal += "&nbsp;";
+
+
+                        if (displayString != null) {
+                            var scope = selection;
+                            retVal += eval(displayString);
+                        }
+                        else if (selection.name != null && selection.name.OfficialRecord != null)
+                            retVal += OpenIZ.Util.renderName(selection.name.OfficialRecord);
+                        else if (selection.name != null && selection.name.Assigned != null)
+                            retVal += OpenIZ.Util.renderName(selection.name.Assigned);
+                        else if (selection.name != null && selection.name.$other != null)
+                            retVal += OpenIZ.Util.renderName(selection.name.$other);
+                        else if (selection.element !== undefined)
+                            retVal += selection.element.innerText.trim();
+                        else if (selection.text)
+                            retVal += selection.text;
+
+                        if (selection.address)
+                            retVal += " - <small>(<i class='fa fa-map-marker'></i> " + OpenIZ.Util.renderAddress(selection.address) + ")</small>";
+                    }
+                    return retVal;
+                }
+
                 $timeout(function () {
-                    var modelType = attrs.oizEntitysearch;
-                    var filterString = attrs.filter;
-                    var displayString = attrs.display;
-                    var searchProperty = attrs.searchfield || "name.component.value";
-                    var defaultResults = attrs.default;
-                    var groupString = attrs.groupBy;
-                    var groupDisplayString = attrs.groupDisplay;
-                    var resultProperty = attrs.resultfield || "id";
-                    var filter = {}, defaultFilter = {};
-                    if (filterString !== undefined)
-                        filter = JSON.parse(filterString);
-
-                    if (modelType != "SecurityUser" && modelType != "SecurityRole")
-                        filter.statusConcept = 'C8064CBD-FA06-4530-B430-1A52F1530C27';
-
+                    
                     // Add appropriate styling so it looks half decent
 
 
@@ -519,14 +594,17 @@ angular.module('openiz', [])
                     $(element).select2({
                         defaultResults: function () {
                             var s = scope;
-                            if (defaultResults != null) {
+                            if (defaultResultExpr != null) {
                                 try {
 
-                                    var defaults = eval(defaultResults);
+                                    var defaults = eval(defaultResultExpr);
                                     return defaults;
                                 } catch (e) {
 
                                 }
+                            }
+                            else if (scope.defaultResults) {
+                                return scope.defaultResults;
                             }
                             else {
                                 return $.map($('option', element[0]), function (o) {
@@ -600,43 +678,7 @@ angular.module('openiz', [])
                         },
                         escapeMarkup: function (markup) { return markup; }, // Format normally
                         minimumInputLength: 2,
-                        templateSelection: function (selection) {
-                            var retVal = "";
-                            switch (modelType) {
-                                case "UserEntity":
-                                case "Provider":
-                                    retVal += "<span class='glyphicon glyphicon-user'></span>";
-                                    break;
-                                case "Place":
-                                    retVal += "<span class='glyphicon glyphicon-map-marker'></span>";
-                                    break;
-                                case "Entity":
-                                    retVal += "<span class='glyphicon glyphicon-tag'></span>";
-                                    break;
-                            }
-                            retVal += "&nbsp;";
-
-
-                            if (displayString != null) {
-                                var scope = selection;
-                                retVal += eval(displayString);
-                            }
-                            else if (selection.name != null && selection.name.OfficialRecord != null)
-                                retVal += OpenIZ.Util.renderName(selection.name.OfficialRecord);
-                            else if (selection.name != null && selection.name.Assigned != null)
-                                retVal += OpenIZ.Util.renderName(selection.name.Assigned);
-                            else if (selection.name != null && selection.name.$other != null)
-                                retVal += OpenIZ.Util.renderName(selection.name.$other);
-                            else if (selection.element !== undefined)
-                                retVal += selection.element.innerText.trim();
-                            else if (selection.text)
-                                retVal += selection.text;
-
-                            if (selection.address)
-                                    retVal += " - <small>(<i class='fa fa-map-marker'></i> " + OpenIZ.Util.renderAddress(selection.address) + ")</small>";
-
-                            return retVal;
-                        },
+                        templateSelection: renderObject,
                         keepSearchResults: true,
                         templateResult: function (result) {
                             if (result.loading) return result.text;
@@ -654,7 +696,7 @@ angular.module('openiz', [])
                             }
                             else if (result.classConcept == OpenIZModel.EntityClassKeys.ServiceDeliveryLocation && result.name != null && result.typeConceptModel != null && result.typeConceptModel.name != null) {
                                 retVal = "<div class='label label-info'>" +
-                                   result.typeConceptModel.name[OpenIZ.Localization.getLocale()] + "</div> " + OpenIZ.Util.renderName(result.name.OfficialRecord || result.name.Assigned || result.name.$other );
+                                    result.typeConceptModel.name[OpenIZ.Localization.getLocale()] + "</div> " + OpenIZ.Util.renderName(result.name.OfficialRecord || result.name.Assigned || result.name.$other);
                                 if (result.relationship && result.relationship.Parent && result.relationship.Parent.targetModel && result.relationship.Parent.targetModel.name)
                                     retVal += " - <small>(<i class='fa fa-map-marker'></i> " + OpenIZ.Util.renderName(result.relationship.Parent.targetModel.name.OfficialRecord || result.relationship.Parent.targetModel.name.Assigned) + ")</small>";
                                 if (result.address)
@@ -683,6 +725,14 @@ angular.module('openiz', [])
                         }
                     });
 
+                    ngModel.$render = function () {
+                        scope.setValue(modelType, ngModel.$viewValue);
+                    };
+
+                    // HACK: Screw Select2 , it is so random
+                    if (ngModel.$viewValue)
+                        scope.setValue(modelType, ngModel.$viewValue);
+
                     //$(element).on("select2:opening", function (e) {
                     //    var s = scope;
                     //    if (defaultResults != null) {
@@ -697,7 +747,7 @@ angular.module('openiz', [])
                     //);
                     // HACK: For angular values, after select2 has "selected" the value, it will be a ? string: ID ? value we do not want this
                     // we want the actual value, so this little thing corrects this bugginess
-                    $(element).on("select2:select", function(e) {
+                    $(element).on("select2:select", function (e) {
 
                         if (e.currentTarget.value.indexOf("? string:") == 0) {
                             e.currentTarget.value = e.currentTarget.value.substring(9, e.currentTarget.value.length - 2);
@@ -769,11 +819,11 @@ angular.module('openiz', [])
                 }, function (newValue, oldValue) {
 
                     var newInt = parseInt(newValue)
-                    , oldInt = parseInt(oldValue)
-                    , bothValues = !isNaN(newInt) && !isNaN(oldInt)
-                    , childScope
-                    , i
-                    , limit;
+                        , oldInt = parseInt(oldValue)
+                        , bothValues = !isNaN(newInt) && !isNaN(oldInt)
+                        , childScope
+                        , i
+                        , limit;
 
                     // decrease number of repeated elements
                     if (isNaN(newInt) || (bothValues && newInt < oldInt)) {
@@ -785,7 +835,7 @@ angular.module('openiz', [])
                         }
                     }
 
-                        // increase number of repeated elements
+                    // increase number of repeated elements
                     else {
                         i = scope.elems.length - 1;
 

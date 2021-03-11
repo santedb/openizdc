@@ -52,10 +52,7 @@
                         id="encounterFacility" name="encounterFacility" ng-model="encounter.participation.Location.player"
                         class="form-control" oiz-entitysearch="Place"
                         data-filter='{ "classConcept" :  "FF34DFA7-C6D3-4F8B-BC9F-14BCDC13BA6C" }'>
-                    <option value="">{{ 'locale.common.location.none' | i18n }}</option>
-                    <option selected="selected" value="{{$root.session.entity.relationship.DedicatedServiceDeliveryLocation.target}}">
-                        {{$root.session.entity.relationship.DedicatedServiceDeliveryLocation.targetModel.name.OfficialRecord | oizEntityName }}
-                    </option>
+                   
                 </select>
             </div>
         </div>

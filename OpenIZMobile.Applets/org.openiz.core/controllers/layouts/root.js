@@ -48,6 +48,33 @@ var layoutApp = angular.module('layout', ['openiz', 'ngSanitize', 'ui.router', '
 
         angular.element(document).ready(init);
 
+
+        var defaultVillages = null;
+
+        $rootScope.getDefaultVillages = function () {
+
+            if ($rootScope.session !== undefined) {
+                if (!defaultVillages) {
+                    defaultVillages = [];
+                    OpenIZ.Place.findAsync({
+                        query: {
+                            'statusConcept.mnemonic': 'ACTIVE',
+                            'relationship[DedicatedServiceDeliveryLocation].target': $rootScope.session.entity.relationship.DedicatedServiceDeliveryLocation.target,
+                            'classConcept': '!FF34DFA7-C6D3-4F8B-BC9F-14BCDC13BA6C',
+                            '_viewModel': 'min'
+                        },
+                        continueWith: function (data) {
+                            if (data.item !== undefined) {
+                                defaultVillages = $.map(data.item, function (o) { return o; });
+                            }
+                        }
+                    });
+                }
+
+                return defaultVillages;
+            }
+        };
+
         // Get alerts
         function getSystemAlerts() {
             OpenIZ.App.getAlertsAsync({

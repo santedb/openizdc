@@ -88,6 +88,8 @@
         <property name="participationRoleModel" behavior="never"/>
       </property>
     </property>
+    <property name="extension" behavior="always"/>
+
   </type>
 
   <type type="Person" all="true">
@@ -107,6 +109,7 @@
     <property name="classConcept" behavior="never"/>
     <property name="determinerConceptModel" behavior="never"/>
     <property name="determinerConcept" behavior="never"/>
+    <property name="extension" behavior="always"/>
   </type>
 
   <type type="Patient" all="true">
