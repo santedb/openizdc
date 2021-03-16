@@ -18,8 +18,8 @@
  - Date: 2017-10-30
  -->
 <div xmlns="http://www.w3.org/1999/xhtml" xmlns:oiz="http://openiz.org/applet" >
-    <div ng-repeat="(typ, rel) in patient.relationship" ng-if="(rel.targetModel.$type == 'Person' || rel.targetModel.$type == 'Patient') &amp;&amp; typ!='Mother' &amp;&amp; typ !='NextOfKin'">
-        <div class="row">
+    <div ng-repeat="(typ, rel) in patient.relationship" ng-if="(rel.targetModel.$type == 'Person' || rel.targetModel.$type == 'Patient') &amp;&amp; typ!='Mother' &amp;&amp; typ !='Contact'">
+        <div class="row" ng-init="patient.nok = patient.nok + 1">
             <label class="col-sm-4 col-xs-12">
                 {{ 'locale.patient.demographics.givenName' | i18n }}
             </label>
@@ -72,5 +72,8 @@
                 {{ rel.targetModel.relationship.Birthplace.targetModel.name.OfficialRecord | oizEntityName }}
             </div>
         </div>
+    </div>
+    <div ng-if="!patient.nok || patient.nok == null">
+        {{ 'locale.patient.nextOfKin.none' | i18n }}
     </div>
 </div>

@@ -33,8 +33,10 @@ namespace OpenIZ.Mobile.Core.Configuration.Data.Migrations
 
             var syncSection = ApplicationContext.Current.Configuration.GetSection<SynchronizationConfigurationSection>();
 
+            var placeIdx = syncSection.SynchronizationResources.FindIndex(o => o.ResourceAqn == "Place");
+
             // Add corrected subscriptions
-            syncSection.SynchronizationResources.Add(new SynchronizationResource()
+            syncSection.SynchronizationResources.Insert(placeIdx, new SynchronizationResource()
             {
                 Triggers = SynchronizationPullTriggerType.OnStart,
                 Name = "locale.sync.countries",

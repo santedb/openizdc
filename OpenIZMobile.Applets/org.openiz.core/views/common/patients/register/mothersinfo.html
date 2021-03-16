@@ -228,7 +228,7 @@
                         ng-model="patient.relationship.Mother.targetModel.address.HomeAddress.villageId"
                         oiz-entitysearch="Place"
                         data-filter='{ "classConcept" : "!FF34DFA7-C6D3-4F8B-BC9F-14BCDC13BA6C" }'
-                        default-values="$rootScope.getDefaultVillages(element)"
+                        default-results="::$root.getDefaultVillages(element)"
                         data-group-by="address.Direct.component.County">
                 </select>
                 <span class="input-group-btn">

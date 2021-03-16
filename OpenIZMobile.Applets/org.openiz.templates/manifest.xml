@@ -1,9 +1,9 @@
 <AppletManifest xmlns="http://openiz.org/applet">
-  <info id="org.openiz.templates" version="1.14.0.0">
+  <info id="org.openiz.templates" version="1.16.0.0">
     <icon>/org.openiz.core/img/icon.png</icon>
     <name lang="en">OpenIZ Clinical Templates</name>
     <author>Mohawk College of Applied Arts and Technology - mHealth &amp; eHealth Development &amp; Innovation Centre</author>
-    <dependency id="org.openiz.core" version="1.14.0.0"/>
+    <dependency id="org.openiz.core" version="1.16.0.0"/>
   </info>
   <template mnemonic="act.substanceadmin.immunization" public="true">
     <form>/org.openiz.templates/templates/views/entry/act.substanceadmin.immunization.html</form>
@@ -24,6 +24,13 @@
     <view>/org.openiz.templates/templates/views/display/act.observation.weight.html</view>
     <oid>1.3.6.1.4.1.33349.3.1.5.9.4.4.0</oid>
     <definition>/org.openiz.templates/templates/act.observation.weight.json</definition>
+    <scope>org.openiz.act</scope>
+  </template>
+  <template mnemonic="act.observation.height" public="true">
+    <form>/org.openiz.templates/templates/views/entry/act.observation.height.html</form>
+    <view>/org.openiz.templates/templates/views/display/act.observation.height.html</view>
+    <oid>1.3.6.1.4.1.33349.3.1.5.9.4.4.9</oid>
+    <definition>/org.openiz.templates/templates/act.observation.height.json</definition>
     <scope>org.openiz.act</scope>
   </template>
   <template mnemonic="act.observation.causeofdeath" public="true">
